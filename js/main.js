@@ -7,7 +7,7 @@
   var $$ = function (s, el) { return Array.prototype.slice.call((el || document).querySelectorAll(s)); };
 
   /* ── Finish picker ── */
-  var THEME_BG = { light: '#FAFAFC', mist: '#E4E4EC', ink: '#060D11', violet: '#100A26' };
+  var THEME_BG = { light: '#F4F4F8', mist: '#E4E4EC', ink: '#0C1920', violet: '#4A32A8' };
   function setFinish(name, save) {
     root.setAttribute('data-theme', name);
     $$('.finish button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.set === name)); });
@@ -33,19 +33,6 @@
   } else {
     revealables.forEach(function (el) { el.classList.add('in'); });
   }
-
-  /* ── The light drifts as you scroll ── */
-  var ticking = false;
-  function onScroll() {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(function () {
-      var max = document.documentElement.scrollHeight - innerHeight;
-      root.style.setProperty('--scroll', max > 0 ? (scrollY / max).toFixed(4) : '0');
-      ticking = false;
-    });
-  }
-  if (!reduce) { addEventListener('scroll', onScroll, { passive: true }); onScroll(); }
 
   /* ── The hero call: one short conversation, on a loop ── */
   var call = $('#call');

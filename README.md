@@ -24,6 +24,6 @@ change the `href` on the button inside `<section class="close" id="book">`.
 
 ## Brand notes
 
-- Green is the rep's voice, purple is the AI customer's response. The line behind the glass is the brand's conversation line.
+- Green is the rep's voice, purple is the AI customer's response. The line behind the glass is the brand's conversation line, in one solid colour. Backgrounds are flat with a fine grain.
 - Headlines use Sora. The brand guide's headline face, Forma DJR Display, needs a web licence before it can be added.
 - Names, scores and calls shown in the interface are sample data.
