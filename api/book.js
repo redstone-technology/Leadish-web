@@ -18,6 +18,9 @@ const DEFAULT_DB = '226b3757ecad4fb0b2a5f7ccda1d0487';
 const INDUSTRIES = ['Real estate', 'Cars', 'Insurance', 'Telecom', 'Retail', 'Software', 'Agency or media', 'Other'];
 const SIZES = ['1-5', '6-10', '11-25', '26-50', '50+'];
 const ROLES = ['Owner or CEO', 'Head of sales', 'Sales manager', 'Team lead', 'Sales rep', 'Other'];
+const STRUGGLES = ['Opening the call', 'Handling objections', 'Talking price', 'Closing', 'Following up'];
+const LANGUAGES = ['English', 'Arabic', 'Both'];
+const WHERE = ['At their office', 'Online'];
 const TIMES = { Morning: '9 to 12', Midday: '12 to 3', Afternoon: '3 to 6' };
 
 function clean(v, max) {
@@ -35,6 +38,9 @@ function validate(b) {
     time: clean(b.time, 12),
     name: clean(b.name, 80),
     role: clean(b.role, 40),
+    struggles: Array.isArray(b.struggles) ? b.struggles.map((s) => clean(s, 40)).filter((s) => STRUGGLES.includes(s)) : [],
+    language: clean(b.language, 10),
+    where: clean(b.where, 20),
     company: clean(b.company, 120),
     phone: clean(b.phone, 24),
     email: clean(b.email, 160),
@@ -45,6 +51,8 @@ function validate(b) {
   if (out.customer.length < 2) errors.push('customer');
   if (!SIZES.includes(out.teamSize)) errors.push('teamSize');
   if (!ROLES.includes(out.role)) errors.push('role');
+  if (!LANGUAGES.includes(out.language)) errors.push('language');
+  if (!WHERE.includes(out.where)) errors.push('where');
   if (!TIMES[out.time]) errors.push('time');
   if (!out.name) errors.push('name');
   if (!out.company) errors.push('company');
@@ -72,6 +80,9 @@ async function saveToNotion(b) {
     Company: { title: text(b.company) },
     Name: { rich_text: text(b.name) },
     Role: { select: { name: b.role } },
+    Struggles: { multi_select: b.struggles.map((name) => ({ name })) },
+    Language: { select: { name: b.language } },
+    Where: { select: { name: b.where } },
     WhatsApp: { phone_number: b.phone },
     Industry: { select: { name: b.industry } },
     Sells: { rich_text: text(b.product) },
@@ -98,13 +109,15 @@ async function saveToNotion(b) {
 
 async function sendAlert(b, notionUrl) {
   const lines = [
-    `${b.name} (${b.role}) at ${b.company} wants a free team challenge.`,
+    `${b.name} (${b.role}) at ${b.company} booked a free team challenge.`,
     '',
     `When: ${niceDate(b.date)}, ${b.time} (${TIMES[b.time]})`,
     `WhatsApp: ${b.phone}`,
     b.email ? `Email: ${b.email}` : null,
     `Sells: ${b.product}, to ${b.customer}`,
-    `Industry: ${b.industry} · Salespeople: ${b.teamSize}`,
+    `Where: ${b.where === 'Online' ? 'Online' : 'At their office'}`,
+    `Industry: ${b.industry} · Salespeople: ${b.teamSize} · Language: ${b.language}`,
+    `Focus: ${b.struggles.length ? b.struggles.join(', ') : 'Not sure yet'}`,
     b.notes ? `Notes: ${b.notes}` : null,
     notionUrl ? `\nIn Notion: ${notionUrl}` : null,
   ].filter((l) => l !== null);
