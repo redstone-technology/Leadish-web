@@ -44,19 +44,6 @@
     return out;
   }
 
-  /* Example answers for the "what do you sell" step, so the fields read like their world. */
-  var EXAMPLES = {
-    'Real estate': ['Off-plan apartments in Lusail', 'Families and investors'],
-    'Cars': ['New SUVs and service plans', 'Families buying their first SUV'],
-    'Insurance': ['Health insurance for companies', 'HR managers at small companies'],
-    'Telecom': ['Business fibre and mobile plans', 'Small business owners'],
-    'Retail': ['Furniture and home decor', 'People moving into a new home'],
-    'Software': ['HR software', 'HR teams at mid-size companies'],
-    'Agency or media': ['Social media management', 'Restaurants and cafes'],
-    'Other': ['Your product or service', 'Your usual customer']
-  };
-  function example(d, k) { return (EXAMPLES[d.industry] || EXAMPLES.Other)[k]; }
-
   var TIMES = { Morning: '9 to 12', Midday: '12 to 3', Afternoon: '3 to 6' };
   var SIZES = { '1-5': '1 to 5', '6-10': '6 to 10', '11-25': '11 to 25', '26-50': '26 to 50', '50+': 'More than 50' };
 
@@ -70,16 +57,9 @@
     { id: 'industry', type: 'single', cols: 2, q: 'What does your team sell?',
       options: [['Real estate'], ['Cars'], ['Insurance'], ['Telecom'], ['Retail'], ['Software'], ['Agency or media'], ['Other', 'Something else']] },
 
-    { id: 'offer', type: 'fields', q: 'What do you sell, and who buys it?',
-      sub: "In a few words. We'll build the AI customer from this.",
-      kicker: function (d) { return d.industry === 'Other' ? 'Got it.' : 'Got it, ' + d.industry.toLowerCase() + '.'; },
-      fields: [
-        { name: 'product', label: 'What you sell', required: true, placeholder: function (d) { return example(d, 0); } },
-        { name: 'customer', label: 'Who buys it', required: true, placeholder: function (d) { return example(d, 1); } }
-      ] },
 
     { id: 'teamSize', type: 'single', q: 'How many salespeople are on your team?',
-      kicker: function () { return 'Thanks, that helps.'; },
+      kicker: function (d) { return d.industry === 'Other' ? 'Got it.' : 'Got it, ' + d.industry.toLowerCase() + '.'; },
       options: Object.keys(SIZES).map(function (k) { return [k, SIZES[k]]; }) },
 
     { id: 'role', type: 'single', cols: 2, q: "What's your role?",
@@ -93,12 +73,9 @@
       kicker: function () { return 'Now, about your reps.'; },
       options: [['Opening the call'], ['Handling objections'], ['Talking price'], ['Closing'], ['Following up'], ['', 'Not sure yet']] },
 
-    { id: 'language', type: 'single', q: 'Which language should the AI customer speak?',
-      kicker: function (d) { return d.struggles && d.struggles.length ? "Noted. We'll make it hard there." : "That's fine. The scores will show you."; },
-      options: [['English'], ['Arabic', 'Arabic', 'Gulf dialect'], ['Both', 'Both', 'Each rep picks']] },
 
     { id: 'where', type: 'single', q: 'Where should we run it?',
-      kicker: function (d) { return { English: 'English it is.', Arabic: 'Arabic it is.', Both: 'Arabic and English, then.' }[d.language]; },
+      kicker: function (d) { return d.struggles && d.struggles.length ? "Noted. We'll make it hard there." : "That's fine. The scores will show you."; },
       options: [['At their office', 'At your office', 'We come to you, in Doha'], ['Online', 'Online', 'Everyone joins from a link']] },
 
     { id: 'date', type: 'date', q: 'Which day works?', sub: "Sunday to Thursday. We'll confirm with you first.",
@@ -297,10 +274,8 @@
   function rows(withEdit, only) {
     var list = [
       ['Team', data.industry === 'Other' ? 'Sales team' : data.industry, SIZES[data.teamSize] + ' salespeople', 'industry'],
-      ['Sells', data.product, data.customer ? 'Buyers: ' + data.customer : null, 'offer'],
       ['Role', data.role === 'Other' ? 'Something else' : data.role, null, 'role'],
       ['Focus', (data.struggles || []).length ? data.struggles.join(', ') : 'Not sure yet', null, 'struggles'],
-      ['Language', data.language, null, 'language'],
       ['Where', data.where === 'Online' ? 'Online' : 'At your office', null, 'where'],
       ['When', niceDate(data.date, true), data.time + ', ' + TIMES[data.time], 'date'],
       ['You', data.name, data.company, 'you'],
@@ -332,9 +307,9 @@
       'Free team challenge request', '',
       'Company: ' + data.company, 'Name: ' + data.name + ' (' + data.role + ')',
       'WhatsApp: ' + data.phone, data.email ? 'Email: ' + data.email : null,
-      'Industry: ' + data.industry, 'Sells: ' + data.product, 'Sells to: ' + data.customer, 'Salespeople: ' + data.teamSize,
+      'Industry: ' + data.industry, 'Salespeople: ' + data.teamSize,
       'Focus: ' + ((data.struggles || []).join(', ') || 'Not sure yet'),
-      'Language: ' + data.language, 'Where: ' + data.where,
+      'Where: ' + data.where,
       'When: ' + niceDate(data.date, true) + ', ' + data.time + ' (' + TIMES[data.time] + ')',
       (data.notes || '').trim() ? 'Notes: ' + data.notes.trim() : null
     ].filter(function (l) { return l !== null; }).join('\n');
@@ -356,7 +331,7 @@
   }
 
   function doneView() {
-    var ticket = el('div', { class: 'bk-ticket glass' }, rows(false, ['When', 'Where', 'You', 'Team', 'Sells']));
+    var ticket = el('div', { class: 'bk-ticket glass' }, rows(false, ['When', 'Where', 'You', 'Team']));
     var ics = el('button', { type: 'button', class: 'btn btn--glass', text: 'Add to calendar', onclick: downloadIcs });
     return el('div', { class: 'bk-done' }, [
       face(),
@@ -457,8 +432,8 @@
     next.appendChild(el('span', { class: 'spin', 'aria-hidden': 'true' }));
     next.appendChild(document.createTextNode(' Booking'));
     var payload = {
-      industry: data.industry, product: data.product, customer: data.customer, teamSize: data.teamSize, role: data.role,
-      struggles: data.struggles || [], language: data.language, where: data.where,
+      industry: data.industry, teamSize: data.teamSize, role: data.role,
+      struggles: data.struggles || [], where: data.where,
       date: data.date, time: data.time, name: data.name, company: data.company,
       phone: data.phone, email: data.email || '', notes: (data.notes || '').trim(),
       website: data.website || '', elapsed: Date.now() - started, page: location.href
