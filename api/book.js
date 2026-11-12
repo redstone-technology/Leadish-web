@@ -52,7 +52,7 @@ function validate(b) {
 
   const digits = out.phone.replace(/\D/g, '');
   if (digits.length < 7 || digits.length > 15 || !/^[+\d\s()-]+$/.test(out.phone)) errors.push('phone');
-  if (out.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(out.email)) errors.push('email');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(out.email)) errors.push('email');
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(out.date)) errors.push('date');
   else {
@@ -82,7 +82,7 @@ async function saveToNotion(b) {
     Time: { select: { name: b.time } },
     Notes: { rich_text: text(b.notes) },
   };
-  if (b.email) props.Email = { email: b.email };
+  props.Email = { email: b.email };
 
   const res = await fetch('https://api.notion.com/v1/pages', {
     method: 'POST',
@@ -103,7 +103,7 @@ async function sendAlert(b, notionUrl) {
     '',
     `When: ${niceDate(b.date)}, ${b.time} (${TIMES[b.time]})`,
     `WhatsApp: ${b.phone}`,
-    b.email ? `Email: ${b.email}` : null,
+    `Email: ${b.email}`,
     `Where: ${b.where === 'Online' ? 'Online' : 'At their office'}`,
     `Industry: ${b.industry} · Salespeople: ${b.teamSize}`,
     `Focus: ${b.struggles.length ? b.struggles.join(', ') : 'Not sure yet'}`,
@@ -117,7 +117,7 @@ async function sendAlert(b, notionUrl) {
     body: JSON.stringify({
       from: process.env.BOOKING_ALERT_FROM || 'Leadish Bookings <onboarding@resend.dev>',
       to: [process.env.BOOKING_ALERT_TO],
-      reply_to: b.email || undefined,
+      reply_to: b.email,
       subject: `New challenge booking: ${b.company}, ${niceDate(b.date)}`,
       text: lines.join('\n'),
     }),

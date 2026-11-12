@@ -95,7 +95,7 @@
       kicker: function (d) { return 'Nice to meet you, ' + first(d.name) + '.'; },
       fields: [
         { name: 'phone', label: 'WhatsApp number', type: 'tel', auto: 'tel', inputmode: 'tel', required: true, placeholder: '+974 5555 1234' },
-        { name: 'email', label: 'Work email', type: 'email', auto: 'email', inputmode: 'email', optional: true, placeholder: 'you@company.com' }
+        { name: 'email', label: 'Work email', type: 'email', auto: 'email', inputmode: 'email', required: true, placeholder: 'you@company.com' }
       ] },
 
     { id: 'notes', type: 'notes', q: 'Anything else we should know?', sub: 'Optional. A tough objection, a deal you keep losing, what you want to test.',
@@ -122,7 +122,7 @@
   function emailOk(v) { return !v || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(v).trim()); }
   function fieldError(f, v) {
     v = String(v || '').trim();
-    if (f.required && !v) return f.name === 'phone' ? 'Add a number we can message.' : 'Please fill this in.';
+    if (f.required && !v) return { phone: 'Add a number we can message.', email: 'Add an email we can write to.' }[f.name] || 'Please fill this in.';
     if (f.required && v.length < 2) return 'A few more words, please.';
     if (f.name === 'phone' && v && !phoneOk(v)) return 'That number looks too short. Include the country code.';
     if (f.name === 'email' && !emailOk(v)) return 'That email looks off. Check for a typo.';
@@ -279,7 +279,7 @@
       ['Where', data.where === 'Online' ? 'Online' : 'At your office', null, 'where'],
       ['When', niceDate(data.date, true), data.time + ', ' + TIMES[data.time], 'date'],
       ['You', data.name, data.company, 'you'],
-      ['Contact', data.phone, data.email || null, 'contact']
+      ['Contact', data.phone, data.email, 'contact']
     ];
     if ((data.notes || '').trim()) list.push(['Notes', data.notes.trim(), null, 'notes']);
     if (only) list = only.map(function (k) { return list.filter(function (r) { return r[0] === k; })[0]; });
@@ -306,7 +306,7 @@
     return [
       'Free team challenge request', '',
       'Company: ' + data.company, 'Name: ' + data.name + ' (' + data.role + ')',
-      'WhatsApp: ' + data.phone, data.email ? 'Email: ' + data.email : null,
+      'WhatsApp: ' + data.phone, 'Email: ' + data.email,
       'Industry: ' + data.industry, 'Salespeople: ' + data.teamSize,
       'Focus: ' + ((data.struggles || []).join(', ') || 'Not sure yet'),
       'Where: ' + data.where,
@@ -435,7 +435,7 @@
       industry: data.industry, teamSize: data.teamSize, role: data.role,
       struggles: data.struggles || [], where: data.where,
       date: data.date, time: data.time, name: data.name, company: data.company,
-      phone: data.phone, email: data.email || '', notes: (data.notes || '').trim(),
+      phone: data.phone, email: data.email, notes: (data.notes || '').trim(),
       website: data.website || '', elapsed: Date.now() - started, page: location.href
     };
     var send = DEMO
