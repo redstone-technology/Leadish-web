@@ -17,10 +17,28 @@ To preview one directly, add `?finish=ink` to the URL.
 
 To ship a single finish: set `data-theme` on `<html>`, then remove the `.finish` groups in `index.html`.
 
-## The button
+## Booking (/book)
 
-"Book a free team challenge" opens an email to tayeb@leadish.app. To use a form or a booking link instead,
-change the `href` on the button inside `<section class="close" id="book">`.
+Every "Book" button goes to `/book` (`book.html`, `css/book.css`, `js/book.js`): one question per screen,
+then a review and a confirmation. Answers stay in the visitor's browser until they book.
+
+The booking is sent to `api/book.js` (a Vercel function), which checks it and then:
+
+- saves a row in the **Challenge Bookings** database in Notion (Redstone HQ), and
+- sends an email alert through Resend (optional).
+
+Set these in Vercel, under Project → Settings → Environment Variables, then redeploy:
+
+| Name | What it is |
+| --- | --- |
+| `NOTION_TOKEN` | The secret of a Notion internal integration. Share the Challenge Bookings database with that integration. |
+| `NOTION_DATABASE_ID` | Optional. Defaults to the Challenge Bookings database. |
+| `RESEND_API_KEY` | Optional. Turns on the email alert. |
+| `BOOKING_ALERT_TO` | Optional. Where the alert goes. Until leadish.app is verified in Resend, this must be the Resend account's own email. |
+| `BOOKING_ALERT_FROM` | Optional. Defaults to `Leadish Bookings <onboarding@resend.dev>`. |
+
+If neither Notion nor Resend is set up, the page tells the visitor it couldn't send, and offers to copy
+the booking or email it to tayeb@leadish.app, so no lead is lost silently.
 
 ## Brand notes
 
