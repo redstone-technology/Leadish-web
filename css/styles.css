@@ -126,6 +126,7 @@
   --ai-fill: #8E63FF;
   --ribbon: #17E39B;
   --chip: #E4E4EC;
+  --logo-mark: #9B7DF0;
 }
 
 /* Leadish Purple */
@@ -161,6 +162,7 @@
   --ai-fill: #BBA7FF;
   --ribbon: #1FD79A;
   --chip: #E4E4EC;
+  --logo-mark: #D9CEFF;
 }
 
 /* ───────────── Base ───────────── */
@@ -258,7 +260,7 @@ img, svg { display: block; max-width: 100%; }
   box-shadow: 0 0 0 1px var(--edge-out), var(--lift-s);
 }
 .nav__logo { justify-self: start; display: inline-flex; align-items: center; height: 44px; color: var(--text); }
-.nav__logo svg { height: 25px; width: auto; aspect-ratio: 3280 / 944; }
+.nav__logo svg { height: 28px; width: auto; aspect-ratio: 2524 / 696; }
 .nav__links { display: flex; gap: 4px; }
 .nav__links a {
   padding: 9px 15px; border-radius: 999px; font-size: 14.5px; color: var(--text-2);
@@ -560,7 +562,7 @@ section { position: relative; }
 /* ───────────── Footer ───────────── */
 .foot { padding: 34px 0 44px; }
 .foot__row { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-top: 30px; border-top: 1px solid var(--hair); font-size: 14px; color: var(--text-3); }
-.foot__logo svg { height: 22px; width: auto; aspect-ratio: 3280 / 944; color: var(--text); }
+.foot__logo svg { height: 26px; width: auto; aspect-ratio: 2524 / 696; color: var(--text); }
 .foot__links { display: flex; gap: 22px; flex-wrap: wrap; }
 .foot__links a { transition: color .2s; }
 .foot__links a:hover { color: var(--text); }
@@ -613,7 +615,7 @@ section { position: relative; }
   body { font-size: 16px; }
   .pane .talk { min-height: 0; }
   .nav { height: 56px; top: 10px; padding: 0 8px 0 18px; }
-  .nav__logo svg { height: 22px; }
+  .nav__logo svg { height: 25px; }
   .hero { padding-top: 132px; }
   .hero .lede { max-width: 30ch; }
   .hero__actions { flex-direction: column; align-items: center; }
