@@ -22,6 +22,10 @@ To ship a single finish: set `data-theme` on `<html>`, then remove the `.finish`
 Every "Book" button goes to `/book` (`book.html`, `css/book.css`, `js/book.js`): one question per screen,
 then a review and a confirmation. Answers stay in the visitor's browser until they book.
 
+Every lead is scored (Hot, Warm or Not a fit), on the page and again on the server. Not a fit = a team of
+1 to 5 and someone who can't decide for the company: they skip picking a day, leave their details for the
+waitlist, and get a polite "not yet". Hot = 6+ salespeople, a decision maker, and no real practice today.
+
 The booking is sent to `api/book.js` (a Vercel function), which checks it and then:
 
 - saves a row in the **Challenge Bookings** database in Notion (Redstone HQ), and

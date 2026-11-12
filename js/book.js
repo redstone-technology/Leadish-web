@@ -49,14 +49,30 @@
 
   /* ── The questions: qualify first, then book ── */
   var ROLES = [['Owner or CEO'], ['Head of sales'], ['Sales manager'], ['Team lead'], ['Sales rep'], ['Other', 'Something else']];
+  var PRACTICE = [['Regular role-play'], ['Internal training or coaching'], ['External trainers or programmes'],
+                  ['Online courses or videos'], ['Mostly on real customers'], ['No set way yet']];
+
+  /* Lead fit. Everyone can finish the flow; only a fit picks a day.
+     Not a fit: a small team (1 to 5) and the person can't decide for the company.
+     Hot: 6+ salespeople, a decision maker, and no real practice today.
+     The server works this out again from the same answers (api/book.js). */
+  var DECIDERS = ['Owner or CEO', 'Head of sales', 'Sales manager'];
+  var GAPS = ['Mostly on real customers', 'No set way yet', 'Online courses or videos'];
+  function fit(d) {
+    var small = d.teamSize === '1-5', decider = DECIDERS.indexOf(d.role) > -1;
+    if (small && !decider) return 'Not a fit';
+    if (!small && decider && GAPS.indexOf(d.practice) > -1) return 'Hot';
+    return 'Warm';
+  }
+  function booking(d) { return fit(d) !== 'Not a fit'; }
+
   var STEPS = [
     { id: 'intro', type: 'intro',
-      q: 'Book a free challenge for your sales team.',
-      sub: 'A few quick questions about your team, then pick a day. About two minutes.', cta: "Let's go" },
+      q: "Let's put your sales team to the test.",
+      sub: 'Answer a few quick questions so we can prepare the right challenge for your team. About two minutes.', cta: "Let's go" },
 
     { id: 'industry', type: 'single', cols: 2, q: 'What does your team sell?',
       options: [['Real estate'], ['Cars'], ['Insurance'], ['Telecom'], ['Retail'], ['Software'], ['Agency or media'], ['Other', 'Something else']] },
-
 
     { id: 'teamSize', type: 'single', q: 'How many salespeople are on your team?',
       kicker: function (d) { return d.industry === 'Other' ? 'Got it.' : 'Got it, ' + d.industry.toLowerCase() + '.'; },
@@ -64,34 +80,52 @@
 
     { id: 'role', type: 'single', cols: 2, q: "What's your role?",
       kicker: function (d) {
-        return { '1-5': 'Small team, fast game.', '6-10': 'A good size for one leaderboard.' }[d.teamSize] || "A big team. We'll run it in rounds.";
+        return { '1-5': 'A small team. Everyone gets a turn.', '6-10': 'A good size for one leaderboard.' }[d.teamSize] || "A big team. We'll run it in rounds.";
       },
       options: ROLES },
 
-    { id: 'struggles', type: 'multi', q: 'Where do new reps struggle most?',
-      sub: 'Pick all that apply. The AI customer will push on these.',
-      kicker: function () { return 'Now, about your reps.'; },
-      options: [['Opening the call'], ['Handling objections'], ['Talking price'], ['Closing'], ['Following up'], ['', 'Not sure yet']] },
+    { id: 'practice', type: 'single', q: 'How does your team practise its sales skills today?',
+      kicker: function (d) {
+        if (DECIDERS.indexOf(d.role) > -1) return "Good, you're the right person to ask.";
+        return d.role === 'Team lead' ? 'Thanks. Your manager may want to join too.' : 'Thanks for telling us.';
+      },
+      options: PRACTICE },
 
+    { id: 'struggles', type: 'multi', q: 'What should the challenge test?',
+      sub: "Pick all that apply. We'll use these to shape your AI customer.",
+      kicker: function (d) {
+        return {
+          'Regular role-play': "Good. Let's see how they do against an AI.",
+          'Internal training or coaching': 'Good. This adds practice between sessions.',
+          'External trainers or programmes': 'This keeps the practice going after the course.',
+          'Online courses or videos': "Watching isn't practising. Let's fix that.",
+          'Mostly on real customers': "That's exactly the gap Leadish fills.",
+          'No set way yet': "Then this will show you a lot."
+        }[d.practice];
+      },
+      options: [['Opening the call'], ['Handling objections'], ['Talking about price'], ['Closing'], ['Following up'], ['', 'Not sure yet']] },
 
-    { id: 'where', type: 'single', q: 'Where should we run it?',
+    { id: 'where', type: 'single', q: 'Where should we run it?', skip: function (d) { return !booking(d); },
       kicker: function (d) { return d.struggles && d.struggles.length ? "Noted. We'll make it hard there." : "That's fine. The scores will show you."; },
       options: [['At their office', 'At your office', 'We come to you, in Doha'], ['Online', 'Online', 'Everyone joins from a link']] },
 
-    { id: 'date', type: 'date', q: 'Which day works?', sub: "Sunday to Thursday. We'll confirm with you first.",
+    { id: 'date', type: 'date', q: 'Which day would work best for your team?', sub: "Sunday to Thursday. We'll confirm with you first.",
+      skip: function (d) { return !booking(d); },
       kicker: function (d) { return d.where === 'Online' ? "We'll send the link." : "We'll come to you."; } },
 
-    { id: 'time', type: 'single', q: 'What time?',
+    { id: 'time', type: 'single', q: 'What time usually works best?', skip: function (d) { return !booking(d); },
       kicker: function (d) { return niceDate(d.date, true) + '. Nice.'; },
       options: Object.keys(TIMES).map(function (k) { return [k, k, TIMES[k]]; }) },
 
-    { id: 'you', type: 'fields', q: 'Who should we ask for?', kicker: function () { return 'Almost done.'; },
+    { id: 'you', type: 'fields', q: 'Who should we ask for?',
+      kicker: function (d) { return booking(d) ? 'Almost done.' : 'Thanks. Just your details now.'; },
       fields: [
         { name: 'name', label: 'Your name', auto: 'name', required: true, placeholder: 'Noor Al-Kuwari' },
         { name: 'company', label: 'Company', auto: 'organization', required: true, placeholder: 'Company name' }
       ] },
 
-    { id: 'contact', type: 'fields', q: 'How do we reach you?', sub: "We'll confirm the date on WhatsApp.",
+    { id: 'contact', type: 'fields', q: 'How do we reach you?',
+      sub: function (d) { return booking(d) ? "We'll confirm the date on WhatsApp." : "We'll reach out on WhatsApp."; },
       kicker: function (d) { return 'Nice to meet you, ' + first(d.name) + '.'; },
       fields: [
         { name: 'phone', label: 'WhatsApp number', type: 'tel', auto: 'tel', inputmode: 'tel', required: true, placeholder: '+974 5555 1234' },
@@ -101,7 +135,9 @@
     { id: 'notes', type: 'notes', q: 'Anything else we should know?', sub: 'Optional. A tough objection, a deal you keep losing, what you want to test.',
       kicker: function () { return 'Last one.'; } },
 
-    { id: 'review', type: 'review', q: "Here's your challenge.", sub: 'Check it, then book.', cta: 'Book my free challenge' },
+    { id: 'review', type: 'review',
+      q: "Here's your request.", sub: 'Check it, then send it.',
+      cta: function (d) { return booking(d) ? 'Book my free challenge' : 'Send my details'; } },
 
     { id: 'done', type: 'done' }
   ];
@@ -115,6 +151,7 @@
   } catch (e) {}
   var DATE_AT = STEPS.map(function (s) { return s.id; }).indexOf('date');
   if (data.date && workingDays().indexOf(data.date) < 0) { delete data.date; if (at > DATE_AT) at = DATE_AT; }
+  if (skipped(at)) at = step(at, 1);
   function save() { try { localStorage.setItem(STORE, JSON.stringify({ at: at, data: data })); } catch (e) {} }
 
   /* ── Validation ── */
@@ -151,7 +188,7 @@
     var bubble = el('div', { class: 'bk-bubble glass' }, [
       kick ? el('p', { class: 'bk-kicker', text: kick }) : null,
       el('h1', { class: 'bk-q', id: 'q', tabindex: '-1', text: s.q }),
-      s.sub ? el('p', { class: 'bk-sub', text: s.sub }) : null
+      s.sub ? el('p', { class: 'bk-sub', text: typeof s.sub === 'function' ? s.sub(data) : s.sub }) : null
     ]);
     wrap.appendChild(el('div', { class: 'bk-ask' }, [face(), bubble]));
 
@@ -173,12 +210,14 @@
   }
 
   function footer(s) {
-    var pct = s.type === 'done' ? 100 : Math.round(Math.max(0, at) / LAST_Q * 100);
+    var seen = 0, total = 0;
+    for (var k = 1; k <= LAST_Q; k++) { if (!skipped(k)) { total++; if (k <= at) seen++; } }
+    var pct = s.type === 'done' ? 100 : Math.round(seen / Math.max(1, total) * 100);
     bar.style.setProperty('--p', pct + '%');
     bar.setAttribute('aria-valuenow', pct);
     back.hidden = at === 0 || s.type === 'done';
 
-    var label = s.cta || 'Continue';
+    var label = (typeof s.cta === 'function' ? s.cta(data) : s.cta) || 'Continue';
     if (s.type === 'notes') label = (data.notes || '').trim() ? 'Continue' : 'Skip';
     if (returnTo != null && s.type !== 'review' && s.type !== 'intro') label = 'Back to review';
     next.textContent = label;
@@ -275,14 +314,16 @@
     var list = [
       ['Team', data.industry === 'Other' ? 'Sales team' : data.industry, SIZES[data.teamSize] + ' salespeople', 'industry'],
       ['Role', data.role === 'Other' ? 'Something else' : data.role, null, 'role'],
-      ['Focus', (data.struggles || []).length ? data.struggles.join(', ') : 'Not sure yet', null, 'struggles'],
+      ['Practice', data.practice, null, 'practice'],
+      ['Test', (data.struggles || []).length ? data.struggles.join(', ') : 'Not sure yet', null, 'struggles'],
       ['Where', data.where === 'Online' ? 'Online' : 'At your office', null, 'where'],
-      ['When', niceDate(data.date, true), data.time + ', ' + TIMES[data.time], 'date'],
+      ['Preferred day', niceDate(data.date, true), data.time + ', ' + TIMES[data.time], 'date'],
       ['You', data.name, data.company, 'you'],
       ['Contact', data.phone, data.email, 'contact']
     ];
     if ((data.notes || '').trim()) list.push(['Notes', data.notes.trim(), null, 'notes']);
     if (only) list = only.map(function (k) { return list.filter(function (r) { return r[0] === k; })[0]; });
+    list = list.filter(function (r) { return r && !skipped(STEPS.map(function (s) { return s.id; }).indexOf(r[3])); });
     return list.map(function (r) {
       var stepIdx = STEPS.map(function (s) { return s.id; }).indexOf(r[3]);
       return el('div', { class: 'rev__row' }, [
@@ -297,7 +338,7 @@
   function reviewView() {
     var box = el('div');
     box.appendChild(el('div', { class: 'rev glass' }, rows(true)));
-    box.appendChild(el('p', { class: 'rev__note', text: "We'll message you within one working day to confirm." }));
+    box.appendChild(el('p', { class: 'rev__note', text: booking(data) ? "We'll message you on WhatsApp within one working day to confirm." : "We'll keep your details and reach out on WhatsApp." }));
     if (error) box.appendChild(errorView());
     return box;
   }
@@ -309,8 +350,9 @@
       'WhatsApp: ' + data.phone, 'Email: ' + data.email,
       'Industry: ' + data.industry, 'Salespeople: ' + data.teamSize,
       'Focus: ' + ((data.struggles || []).join(', ') || 'Not sure yet'),
-      'Where: ' + data.where,
-      'When: ' + niceDate(data.date, true) + ', ' + data.time + ' (' + TIMES[data.time] + ')',
+      'Practice today: ' + data.practice,
+      booking(data) ? 'Where: ' + data.where : null,
+      booking(data) ? 'Preferred day: ' + niceDate(data.date, true) + ', ' + data.time + ' (' + TIMES[data.time] + ')' : null,
       (data.notes || '').trim() ? 'Notes: ' + data.notes.trim() : null
     ].filter(function (l) { return l !== null; }).join('\n');
   }
@@ -324,35 +366,30 @@
     var mail = el('a', { class: 'btn btn--glass btn--s', text: 'Email it to us',
       href: 'mailto:tayeb@leadish.app?subject=' + encodeURIComponent('Free team challenge: ' + (data.company || '')) + '&body=' + encodeURIComponent(summaryText()) });
     return el('div', { class: 'bk-error glass', role: 'alert' }, [
-      el('b', { text: "We couldn't send your booking. " }),
+      el('b', { text: "We couldn't send your request. " }),
       error === 'offline' ? 'Check your connection and try again, or send it to us directly at tayeb@leadish.app.' : 'Try again, or send it to us directly at tayeb@leadish.app.',
       el('div', { class: 'bk-error__acts' }, [copy, mail])
     ]);
   }
 
   function doneView() {
-    var ticket = el('div', { class: 'bk-ticket glass' }, rows(false, ['When', 'Where', 'You', 'Team']));
-    var ics = el('button', { type: 'button', class: 'btn btn--glass', text: 'Add to calendar', onclick: downloadIcs });
+    if (!booking(data)) {
+      return el('div', { class: 'bk-done' }, [
+        face(),
+        el('h1', { tabindex: '-1', id: 'q', text: 'Thanks, ' + (first(data.name) || 'there') + '.' }),
+        el('p', { class: 'lede', text: "Our free challenges are for sales teams of 6 or more for now. We've saved your details and will reach out on WhatsApp when we can run one for you." }),
+        el('p', { class: 'bk-done__note', text: 'If your manager wants to book one for a bigger team, send them this page.' }),
+        el('div', { class: 'bk-done__acts' }, [el('a', { class: 'btn btn--primary', href: '/', text: 'Back to leadish.app' })])
+      ]);
+    }
+    var ticket = el('div', { class: 'bk-ticket glass' }, rows(false, ['Preferred day', 'Where', 'You', 'Team']));
     return el('div', { class: 'bk-done' }, [
       face(),
-      el('h1', { tabindex: '-1', id: 'q', text: "You're booked." }),
-      el('p', { class: 'lede', text: "We'll message " + (data.phone || 'you') + ' on WhatsApp within one working day to confirm ' + niceDate(data.date, true) + '.' }),
+      el('h1', { tabindex: '-1', id: 'q', text: "You're in!" }),
+      el('p', { class: 'lede', text: 'Your Leadish challenge request has been received. We\u2019ll contact you on WhatsApp within one working day to confirm the date and details.' }),
       ticket,
-      el('div', { class: 'bk-done__acts' }, [ics, el('a', { class: 'btn btn--primary', href: '/', text: 'Back to leadish.app' })])
+      el('div', { class: 'bk-done__acts' }, [el('a', { class: 'btn btn--primary', href: '/', text: 'Back to leadish.app' })])
     ]);
-  }
-
-  function downloadIcs() {
-    var start = { Morning: 6, Midday: 9, Afternoon: 12 }[data.time] || 6;   // UTC hours; Qatar is UTC+3 all year
-    var d = data.date.replace(/-/g, ''), h = String(start).padStart(2, '0'), h2 = String(start + 1).padStart(2, '0');
-    var ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Leadish//Booking//EN', 'BEGIN:VEVENT',
-      'UID:' + Date.now() + '@leadish.app', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
-      'DTSTART:' + d + 'T' + h + '0000Z', 'DTEND:' + d + 'T' + h2 + '0000Z',
-      'SUMMARY:Leadish team challenge (to be confirmed)',
-      'DESCRIPTION:Free Leadish team challenge for ' + String(data.company || '').replace(/[,;\n]/g, ' ') + '. We will confirm the exact time on WhatsApp.',
-      'LOCATION:' + (data.where === 'Online' ? 'Online' : 'Your office'), 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
-    var a = el('a', { href: URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })), download: 'leadish-challenge.ics' });
-    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
 
   function confetti() {
@@ -374,6 +411,8 @@
   }
 
   /* ── Moving through the steps ── */
+  function skipped(i) { var s = STEPS[i]; return !!(s && s.skip && s.skip(data)); }
+  function step(from, dir) { var i = from + dir; while (i > 0 && i < STEPS.length - 1 && skipped(i)) i += dir; return i; }
   function go(to, dir) { at = Math.max(0, Math.min(STEPS.length - 1, to)); if (STEPS[at].type !== 'done') save(); render(dir); }
 
   var advanceTimer = null;
@@ -421,8 +460,11 @@
     }
     if (!valid(s)) return;
     if (s.type === 'review') return submit();
-    if (returnTo != null) { var r = returnTo; returnTo = null; return go(r, 1); }
-    go(at + 1, 1);
+    if (returnTo != null) {
+      for (var m = 1; m < LAST_Q; m++) if (!skipped(m) && !valid(STEPS[m])) return go(m, 1);
+      var r = returnTo; returnTo = null; return go(r, 1);
+    }
+    go(step(at, 1), 1);
   }
 
   function submit() {
@@ -430,11 +472,11 @@
     next.classList.add('is-busy');
     next.textContent = '';
     next.appendChild(el('span', { class: 'spin', 'aria-hidden': 'true' }));
-    next.appendChild(document.createTextNode(' Booking'));
+    next.appendChild(document.createTextNode(' Sending'));
     var payload = {
-      industry: data.industry, teamSize: data.teamSize, role: data.role,
-      struggles: data.struggles || [], where: data.where,
-      date: data.date, time: data.time, name: data.name, company: data.company,
+      industry: data.industry, teamSize: data.teamSize, role: data.role, practice: data.practice,
+      struggles: data.struggles || [], where: booking(data) ? data.where : '',
+      date: booking(data) ? data.date : '', time: booking(data) ? data.time : '', name: data.name, company: data.company,
       phone: data.phone, email: data.email, notes: (data.notes || '').trim(),
       website: data.website || '', elapsed: Date.now() - started, page: location.href
     };
@@ -456,7 +498,7 @@
   }
 
   next.addEventListener('click', forward);
-  back.addEventListener('click', function () { if (at > 0) { returnTo = null; go(at - 1, -1); } });
+  back.addEventListener('click', function () { if (at > 0) { returnTo = null; go(step(at, -1), -1); } });
 
   document.addEventListener('keydown', function (e) {
     var s = STEPS[at], tag = (e.target.tagName || '').toLowerCase();

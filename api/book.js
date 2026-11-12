@@ -18,7 +18,20 @@ const DEFAULT_DB = '226b3757ecad4fb0b2a5f7ccda1d0487';
 const INDUSTRIES = ['Real estate', 'Cars', 'Insurance', 'Telecom', 'Retail', 'Software', 'Agency or media', 'Other'];
 const SIZES = ['1-5', '6-10', '11-25', '26-50', '50+'];
 const ROLES = ['Owner or CEO', 'Head of sales', 'Sales manager', 'Team lead', 'Sales rep', 'Other'];
-const STRUGGLES = ['Opening the call', 'Handling objections', 'Talking price', 'Closing', 'Following up'];
+const STRUGGLES = ['Opening the call', 'Handling objections', 'Talking about price', 'Closing', 'Following up'];
+const PRACTICE = ['Regular role-play', 'Internal training or coaching', 'External trainers or programmes',
+  'Online courses or videos', 'Mostly on real customers', 'No set way yet'];
+
+// Same rule as the page: small team + not a decision maker = not a fit (no day is picked).
+// Hot = 6+ salespeople, a decision maker, and no real practice today.
+const DECIDERS = ['Owner or CEO', 'Head of sales', 'Sales manager'];
+const GAPS = ['Mostly on real customers', 'No set way yet', 'Online courses or videos'];
+function fitOf(b) {
+  const small = b.teamSize === '1-5', decider = DECIDERS.includes(b.role);
+  if (small && !decider) return 'Not a fit';
+  if (!small && decider && GAPS.includes(b.practice)) return 'Hot';
+  return 'Warm';
+}
 const WHERE = ['At their office', 'Online'];
 const TIMES = { Morning: '9 to 12', Midday: '12 to 3', Afternoon: '3 to 6' };
 
@@ -35,6 +48,7 @@ function validate(b) {
     time: clean(b.time, 12),
     name: clean(b.name, 80),
     role: clean(b.role, 40),
+    practice: clean(b.practice, 60),
     struggles: Array.isArray(b.struggles) ? b.struggles.map((s) => clean(s, 40)).filter((s) => STRUGGLES.includes(s)) : [],
     where: clean(b.where, 20),
     company: clean(b.company, 120),
@@ -45,8 +59,11 @@ function validate(b) {
   if (!INDUSTRIES.includes(out.industry)) errors.push('industry');
   if (!SIZES.includes(out.teamSize)) errors.push('teamSize');
   if (!ROLES.includes(out.role)) errors.push('role');
-  if (!WHERE.includes(out.where)) errors.push('where');
-  if (!TIMES[out.time]) errors.push('time');
+  if (!PRACTICE.includes(out.practice)) errors.push('practice');
+  out.fit = fitOf(out);
+  const booking = out.fit !== 'Not a fit';
+  if (booking && !WHERE.includes(out.where)) errors.push('where');
+  if (booking && !TIMES[out.time]) errors.push('time');
   if (!out.name) errors.push('name');
   if (!out.company) errors.push('company');
 
@@ -54,7 +71,8 @@ function validate(b) {
   if (digits.length < 7 || digits.length > 15 || !/^[+\d\s()-]+$/.test(out.phone)) errors.push('phone');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(out.email)) errors.push('email');
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(out.date)) errors.push('date');
+  if (!booking) { out.where = ''; out.date = ''; out.time = ''; }
+  else if (!/^\d{4}-\d{2}-\d{2}$/.test(out.date)) errors.push('date');
   else {
     const day = new Date(out.date + 'T12:00:00+03:00');
     const now = Date.now();
@@ -73,16 +91,20 @@ async function saveToNotion(b) {
     Company: { title: text(b.company) },
     Name: { rich_text: text(b.name) },
     Role: { select: { name: b.role } },
-    Struggles: { multi_select: b.struggles.map((name) => ({ name })) },
-    Where: { select: { name: b.where } },
+    Test: { multi_select: b.struggles.map((name) => ({ name })) },
     WhatsApp: { phone_number: b.phone },
     Industry: { select: { name: b.industry } },
     'Team size': { select: { name: b.teamSize } },
-    Date: { date: { start: b.date } },
-    Time: { select: { name: b.time } },
+    Practice: { select: { name: b.practice } },
+    Fit: { select: { name: b.fit } },
     Notes: { rich_text: text(b.notes) },
   };
   props.Email = { email: b.email };
+  if (b.date) {
+    props.Date = { date: { start: b.date } };
+    props.Time = { select: { name: b.time } };
+    props.Where = { select: { name: b.where } };
+  }
 
   const res = await fetch('https://api.notion.com/v1/pages', {
     method: 'POST',
@@ -99,14 +121,18 @@ async function saveToNotion(b) {
 
 async function sendAlert(b, notionUrl) {
   const lines = [
-    `${b.name} (${b.role}) at ${b.company} booked a free team challenge.`,
+    b.date
+      ? `${b.name} (${b.role}) at ${b.company} asked for a free team challenge.`
+      : `${b.name} (${b.role}) at ${b.company} is not a fit yet (small team). Saved to the waitlist.`,
+    `Fit: ${b.fit}`,
     '',
-    `When: ${niceDate(b.date)}, ${b.time} (${TIMES[b.time]})`,
+    b.date ? `Preferred day: ${niceDate(b.date)}, ${b.time} (${TIMES[b.time]})` : null,
+    b.date ? `Where: ${b.where === 'Online' ? 'Online' : 'At their office'}` : null,
     `WhatsApp: ${b.phone}`,
     `Email: ${b.email}`,
-    `Where: ${b.where === 'Online' ? 'Online' : 'At their office'}`,
     `Industry: ${b.industry} · Salespeople: ${b.teamSize}`,
-    `Focus: ${b.struggles.length ? b.struggles.join(', ') : 'Not sure yet'}`,
+    `Practice today: ${b.practice}`,
+    `Test: ${b.struggles.length ? b.struggles.join(', ') : 'Not sure yet'}`,
     b.notes ? `Notes: ${b.notes}` : null,
     notionUrl ? `\nIn Notion: ${notionUrl}` : null,
   ].filter((l) => l !== null);
@@ -118,7 +144,7 @@ async function sendAlert(b, notionUrl) {
       from: process.env.BOOKING_ALERT_FROM || 'Leadish Bookings <onboarding@resend.dev>',
       to: [process.env.BOOKING_ALERT_TO],
       reply_to: b.email,
-      subject: `New challenge booking: ${b.company}, ${niceDate(b.date)}`,
+      subject: b.date ? `[${b.fit}] Challenge request: ${b.company}, ${niceDate(b.date)}` : `[Not a fit] Waitlist: ${b.company}`,
       text: lines.join('\n'),
     }),
   });
