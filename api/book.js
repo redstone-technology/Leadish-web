@@ -17,9 +17,7 @@ const DEFAULT_DB = '226b3757ecad4fb0b2a5f7ccda1d0487';
 
 const INDUSTRIES = ['Real estate', 'Cars', 'Insurance', 'Telecom', 'Retail', 'Software', 'Agency or media', 'Other'];
 const SIZES = ['1-5', '6-10', '11-25', '26-50', '50+'];
-const STRUGGLES = ['Opening the call', 'Handling objections', 'Talking price', 'Closing', 'Following up'];
-const LANGUAGES = ['English', 'Arabic', 'Both'];
-const WHERE = ['At their office', 'Online'];
+const ROLES = ['Owner or CEO', 'Head of sales', 'Sales manager', 'Team lead', 'Sales rep', 'Other'];
 const TIMES = { Morning: '9 to 12', Midday: '12 to 3', Afternoon: '3 to 6' };
 
 function clean(v, max) {
@@ -33,13 +31,10 @@ function validate(b) {
     product: clean(b.product, 120),
     customer: clean(b.customer, 120),
     teamSize: clean(b.teamSize, 10),
-    struggles: Array.isArray(b.struggles) ? b.struggles.map((s) => clean(s, 40)).filter((s) => STRUGGLES.includes(s)) : [],
-    language: clean(b.language, 10),
-    where: clean(b.where, 20),
     date: clean(b.date, 10),
     time: clean(b.time, 12),
     name: clean(b.name, 80),
-    role: clean(b.role, 80),
+    role: clean(b.role, 40),
     company: clean(b.company, 120),
     phone: clean(b.phone, 24),
     email: clean(b.email, 160),
@@ -49,8 +44,7 @@ function validate(b) {
   if (out.product.length < 2) errors.push('product');
   if (out.customer.length < 2) errors.push('customer');
   if (!SIZES.includes(out.teamSize)) errors.push('teamSize');
-  if (!LANGUAGES.includes(out.language)) errors.push('language');
-  if (!WHERE.includes(out.where)) errors.push('where');
+  if (!ROLES.includes(out.role)) errors.push('role');
   if (!TIMES[out.time]) errors.push('time');
   if (!out.name) errors.push('name');
   if (!out.company) errors.push('company');
@@ -77,17 +71,14 @@ async function saveToNotion(b) {
   const props = {
     Company: { title: text(b.company) },
     Name: { rich_text: text(b.name) },
-    Role: { rich_text: text(b.role) },
+    Role: { select: { name: b.role } },
     WhatsApp: { phone_number: b.phone },
     Industry: { select: { name: b.industry } },
     Sells: { rich_text: text(b.product) },
     'Sells to': { rich_text: text(b.customer) },
     'Team size': { select: { name: b.teamSize } },
-    Struggles: { multi_select: b.struggles.map((name) => ({ name })) },
-    Language: { select: { name: b.language } },
     Date: { date: { start: b.date } },
     Time: { select: { name: b.time } },
-    Where: { select: { name: b.where } },
     Notes: { rich_text: text(b.notes) },
   };
   if (b.email) props.Email = { email: b.email };
@@ -107,15 +98,13 @@ async function saveToNotion(b) {
 
 async function sendAlert(b, notionUrl) {
   const lines = [
-    `${b.name}${b.role ? ' (' + b.role + ')' : ''} at ${b.company} booked a free team challenge.`,
+    `${b.name} (${b.role}) at ${b.company} wants a free team challenge.`,
     '',
     `When: ${niceDate(b.date)}, ${b.time} (${TIMES[b.time]})`,
-    `Where: ${b.where === 'Online' ? 'Online' : 'At their office'}`,
     `WhatsApp: ${b.phone}`,
     b.email ? `Email: ${b.email}` : null,
     `Sells: ${b.product}, to ${b.customer}`,
-    `Industry: ${b.industry} · Team size: ${b.teamSize} · Language: ${b.language}`,
-    `Focus: ${b.struggles.length ? b.struggles.join(', ') : 'Not sure yet'}`,
+    `Industry: ${b.industry} · Salespeople: ${b.teamSize}`,
     b.notes ? `Notes: ${b.notes}` : null,
     notionUrl ? `\nIn Notion: ${notionUrl}` : null,
   ].filter((l) => l !== null);
