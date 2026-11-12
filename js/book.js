@@ -135,16 +135,12 @@
     { id: 'notes', type: 'notes', q: 'Anything else we should know?', sub: 'Optional. A tough objection, a deal you keep losing, what you want to test.',
       kicker: function () { return 'Last one.'; } },
 
-    { id: 'review', type: 'review',
-      q: "Here's your request.", sub: 'Check it, then send it.',
-      cta: function (d) { return booking(d) ? 'Book my free challenge' : 'Send my details'; } },
-
     { id: 'done', type: 'done' }
   ];
-  var LAST_Q = STEPS.length - 2;   // review
+  var LAST_Q = STEPS.length - 2;   // the last question; answering it sends the booking
 
   /* ── State ── */
-  var data = {}, at = 0, returnTo = null, error = null, busy = false;
+  var data = {}, at = 0, error = null, busy = false;
   try {
     var saved = JSON.parse(localStorage.getItem(STORE) || 'null');
     if (saved && saved.data) { data = saved.data; at = Math.min(saved.at || 0, LAST_Q); }
@@ -197,7 +193,7 @@
     if (s.type === 'date') body.appendChild(dateView(s));
     if (s.type === 'fields') body.appendChild(fieldsView(s));
     if (s.type === 'notes') body.appendChild(notesView());
-    if (s.type === 'review') body.appendChild(reviewView());
+    if (s.type === 'notes' && error) body.appendChild(errorView());
     if (body.childNodes.length) wrap.appendChild(body);
     wrap.appendChild(actions);
     stage.appendChild(wrap);
@@ -218,8 +214,7 @@
     back.hidden = at === 0 || s.type === 'done';
 
     var label = (typeof s.cta === 'function' ? s.cta(data) : s.cta) || 'Continue';
-    if (s.type === 'notes') label = (data.notes || '').trim() ? 'Continue' : 'Skip';
-    if (returnTo != null && s.type !== 'review' && s.type !== 'intro') label = 'Back to review';
+    if (s.type === 'notes') label = (data.notes || '').trim() ? (booking(data) ? 'Book my free challenge' : 'Send my details') : 'Skip';
     next.textContent = label;
     next.disabled = !valid(s);
 
@@ -227,9 +222,9 @@
     var n = s.options ? s.options.length : 0;
     if (s.type === 'single' || s.type === 'multi') {
       hint.appendChild(el('span', { class: 'keys' }, ['Press ', el('kbd', { text: '1' }), '–', el('kbd', { text: String(n) }), ' to choose']));
-    } else if (s.type === 'review') {
+    } else if (s.type === 'notes') {
       hint.textContent = "It's free. No card needed.";
-    } else if (s.type === 'fields' || s.type === 'notes' || s.type === 'intro' || s.type === 'date') {
+    } else if (s.type === 'fields' || s.type === 'intro' || s.type === 'date') {
       hint.appendChild(el('span', { class: 'keys' }, ['Press ', el('kbd', { text: 'Enter' }), ' to continue']));
     }
   }
@@ -310,39 +305,6 @@
     return el('div', { class: 'fld' }, [t]);
   }
 
-  function rows(withEdit, only) {
-    var list = [
-      ['Team', data.industry === 'Other' ? 'Sales team' : data.industry, SIZES[data.teamSize] + ' salespeople', 'industry'],
-      ['Role', data.role === 'Other' ? 'Something else' : data.role, null, 'role'],
-      ['Practice', data.practice, null, 'practice'],
-      ['Test', (data.struggles || []).length ? data.struggles.join(', ') : 'Not sure yet', null, 'struggles'],
-      ['Where', data.where === 'Online' ? 'Online' : 'At your office', null, 'where'],
-      ['Preferred day', niceDate(data.date, true), data.time + ', ' + TIMES[data.time], 'date'],
-      ['You', data.name, data.company, 'you'],
-      ['Contact', data.phone, data.email, 'contact']
-    ];
-    if ((data.notes || '').trim()) list.push(['Notes', data.notes.trim(), null, 'notes']);
-    if (only) list = only.map(function (k) { return list.filter(function (r) { return r[0] === k; })[0]; });
-    list = list.filter(function (r) { return r && !skipped(STEPS.map(function (s) { return s.id; }).indexOf(r[3])); });
-    return list.map(function (r) {
-      var stepIdx = STEPS.map(function (s) { return s.id; }).indexOf(r[3]);
-      return el('div', { class: 'rev__row' }, [
-        el('span', { class: 'rev__k', text: r[0] }),
-        el('span', { class: 'rev__v' }, [r[1] || '', r[2] ? el('small', { text: r[2] }) : null]),
-        withEdit ? el('button', { type: 'button', class: 'rev__edit', text: 'Change', 'aria-label': 'Change ' + r[0].toLowerCase(),
-          onclick: function () { returnTo = LAST_Q; go(stepIdx, -1); } }) : null
-      ]);
-    });
-  }
-
-  function reviewView() {
-    var box = el('div');
-    box.appendChild(el('div', { class: 'rev glass' }, rows(true)));
-    box.appendChild(el('p', { class: 'rev__note', text: booking(data) ? "We'll message you on WhatsApp within one working day to confirm." : "We'll keep your details and reach out on WhatsApp." }));
-    if (error) box.appendChild(errorView());
-    return box;
-  }
-
   function summaryText() {
     return [
       'Free team challenge request', '',
@@ -372,23 +334,26 @@
     ]);
   }
 
+  /* Slot for the Leadish intro video. To add it, replace this block with a <video> or an embed. */
+  function videoSlot() {
+    return el('figure', { class: 'bk-video glass', 'aria-label': 'Leadish intro video, coming soon' }, [
+      el('span', { class: 'bk-video__play', 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.6v12.8a.8.8 0 0 0 1.2.7l10.1-6.4a.8.8 0 0 0 0-1.4L9.2 4.9A.8.8 0 0 0 8 5.6Z"/></svg>' }),
+      el('figcaption', {}, [el('b', { text: 'Meet Leadish' }), el('span', { text: 'A short intro video is on its way.' })])
+    ]);
+  }
+
   function doneView() {
-    if (!booking(data)) {
-      return el('div', { class: 'bk-done' }, [
-        face(),
-        el('h1', { tabindex: '-1', id: 'q', text: 'Thanks, ' + (first(data.name) || 'there') + '.' }),
-        el('p', { class: 'lede', text: "Our free challenges are for sales teams of 6 or more for now. We've saved your details and will reach out on WhatsApp when we can run one for you." }),
-        el('p', { class: 'bk-done__note', text: 'If your manager wants to book one for a bigger team, send them this page.' }),
-        el('div', { class: 'bk-done__acts' }, [el('a', { class: 'btn btn--primary', href: '/', text: 'Back to leadish.app' })])
-      ]);
-    }
-    var ticket = el('div', { class: 'bk-ticket glass' }, rows(false, ['Preferred day', 'Where', 'You', 'Team']));
+    var fitLead = booking(data);
     return el('div', { class: 'bk-done' }, [
       face(),
-      el('h1', { tabindex: '-1', id: 'q', text: "You're in!" }),
-      el('p', { class: 'lede', text: 'Your Leadish challenge request has been received. We\u2019ll contact you on WhatsApp within one working day to confirm the date and details.' }),
-      ticket,
-      el('div', { class: 'bk-done__acts' }, [el('a', { class: 'btn btn--primary', href: '/', text: 'Back to leadish.app' })])
+      el('h1', { tabindex: '-1', id: 'q', text: 'Thank you, ' + (first(data.name) || 'there') + '.' }),
+      el('p', { class: 'lede', text: fitLead
+        ? "Your free challenge request is in. We'll contact you on WhatsApp within one working day to confirm the date and details."
+        : "Our free challenges are for sales teams of 6 or more for now. We've saved your details and will reach out on WhatsApp when we can run one for you." }),
+      fitLead ? null : el('p', { class: 'bk-done__note', text: 'If your manager wants to book one for a bigger team, send them this page.' }),
+      el('p', { class: 'bk-done__kicker', text: 'While you wait, see how Leadish works.' }),
+      videoSlot(),
+      el('div', { class: 'bk-done__acts' }, [el('a', { class: 'btn btn--glass', href: '/', text: 'Back to leadish.app' })])
     ]);
   }
 
@@ -459,11 +424,7 @@
       save();
     }
     if (!valid(s)) return;
-    if (s.type === 'review') return submit();
-    if (returnTo != null) {
-      for (var m = 1; m < LAST_Q; m++) if (!skipped(m) && !valid(STEPS[m])) return go(m, 1);
-      var r = returnTo; returnTo = null; return go(r, 1);
-    }
+    if (s.type === 'notes') return submit();     // Skip or send: either way the booking goes out now
     go(step(at, 1), 1);
   }
 
@@ -498,7 +459,7 @@
   }
 
   next.addEventListener('click', forward);
-  back.addEventListener('click', function () { if (at > 0) { returnTo = null; go(step(at, -1), -1); } });
+  back.addEventListener('click', function () { if (at > 0) go(step(at, -1), -1); });
 
   document.addEventListener('keydown', function (e) {
     var s = STEPS[at], tag = (e.target.tagName || '').toLowerCase();

@@ -19,8 +19,9 @@ To ship a single finish: set `data-theme` on `<html>`, then remove the `.finish`
 
 ## Booking (/book)
 
-Every "Book" button goes to `/book` (`book.html`, `css/book.css`, `js/book.js`): one question per screen,
-then a review and a confirmation. Answers stay in the visitor's browser until they book.
+Every "Book" button goes to `/book` (`book.html`, `css/book.css`, `js/book.js`): one question per screen.
+The last question (optional notes) sends the booking, Skip included, then a thank-you screen shows a slot
+for the intro video (`videoSlot()` in `js/book.js`). Answers stay in the visitor's browser until they book.
 
 Every lead is scored (Hot, Warm or Not a fit), on the page and again on the server. Not a fit = a team of
 1 to 5 and someone who can't decide for the company: they skip picking a day, leave their details for the
