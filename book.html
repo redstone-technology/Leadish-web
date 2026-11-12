@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="mist">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Book a free team challenge — Leadish</title>
 <meta name="description" content="Set up a free Leadish challenge for your sales team. A few quick questions, about a minute.">
-<meta name="theme-color" content="#F4F4F8">
+<meta name="theme-color" content="#E4E4EC">
 <meta property="og:title" content="Book a free team challenge — Leadish">
 <meta property="og:description" content="Set up a free Leadish challenge for your sales team. A few quick questions, about a minute.">
 <meta property="og:url" content="https://leadish.app/book">
@@ -16,15 +16,8 @@
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/book.css">
 <script>
-  (function () {
-    var d = document.documentElement, t = null;
-    d.classList.add('js');
-    try { t = localStorage.getItem('leadish-finish'); } catch (e) {}
-    if (!/^(light|mist|ink|violet)$/.test(t || '')) {
-      t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'ink' : 'light';
-    }
-    d.setAttribute('data-theme', t);
-  })();
+  /* One colour: Soft Grey. */
+  document.documentElement.classList.add('js');
 </script>
 </head>
 <body class="book">

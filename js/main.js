@@ -6,21 +6,6 @@
   var $ = function (s, el) { return (el || document).querySelector(s); };
   var $$ = function (s, el) { return Array.prototype.slice.call((el || document).querySelectorAll(s)); };
 
-  /* ── Finish picker ── */
-  var THEME_BG = { light: '#F4F4F8', mist: '#E4E4EC', ink: '#0C1920', violet: '#4A32A8' };
-  function setFinish(name, save) {
-    root.setAttribute('data-theme', name);
-    $$('.finish button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.set === name)); });
-    var meta = $('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', THEME_BG[name]);
-    if (save) { try { localStorage.setItem('leadish-finish', name); } catch (e) {} }
-  }
-  var fromUrl = (location.search.match(/[?&]finish=(light|mist|ink|violet)/) || [])[1];
-  setFinish(fromUrl || root.getAttribute('data-theme') || 'light', false);
-  $$('.finish button').forEach(function (b) {
-    b.addEventListener('click', function () { setFinish(b.dataset.set, true); });
-  });
-
   /* ── Reveal on scroll ── */
   var revealables = $$('.reveal, .ribbon');
   if ('IntersectionObserver' in window && !reduce) {

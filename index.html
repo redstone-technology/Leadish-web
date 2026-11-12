@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="mist">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Leadish — Beat the AI. Win the deal.</title>
 <meta name="description" content="Leadish is a sales game for teams. Your reps call an AI customer that pushes back, get a score, and race each other up a live leaderboard. In Arabic or English.">
-<meta name="theme-color" content="#F4F4F8">
+<meta name="theme-color" content="#E4E4EC">
 <meta property="og:title" content="Leadish — Beat the AI. Win the deal.">
 <meta property="og:description" content="A sales game for teams. Reps call an AI customer that pushes back, get a score, and race up a live leaderboard.">
 <meta property="og:type" content="website">
@@ -16,16 +16,8 @@
 <link rel="preload" href="assets/fonts/sora-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/styles.css">
 <script>
-  /* Set the finish before first paint so the page never flashes the wrong one. */
-  (function () {
-    var d = document.documentElement, t = null;
-    d.classList.add('js');
-    try { t = localStorage.getItem('leadish-finish'); } catch (e) {}
-    if (!/^(light|mist|ink|violet)$/.test(t || '')) {
-      t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'ink' : 'light';
-    }
-    d.setAttribute('data-theme', t);
-  })();
+  /* One colour: Soft Grey. */
+  document.documentElement.classList.add('js');
 </script>
 </head>
 <body>
@@ -45,12 +37,6 @@
     <a href="#team">Team challenge</a>
   </nav>
   <div class="nav__end">
-    <div class="finish" role="group" aria-label="Page colour">
-      <button type="button" data-set="light" aria-pressed="false" title="White"><span class="sr">White</span></button>
-      <button type="button" data-set="mist" aria-pressed="false" title="Soft grey"><span class="sr">Soft grey</span></button>
-      <button type="button" data-set="ink" aria-pressed="false" title="Deep ink"><span class="sr">Deep ink</span></button>
-      <button type="button" data-set="violet" aria-pressed="false" title="Purple"><span class="sr">Purple</span></button>
-    </div>
     <a class="btn btn--primary btn--s" href="/book">Book a free challenge</a>
   </div>
 </header>
@@ -345,12 +331,6 @@
       <a href="mailto:tayeb@leadish.app">Contact</a>
     </nav>
     <div class="foot__finish">
-      <div class="finish" role="group" aria-label="Page colour">
-        <button type="button" data-set="light" aria-pressed="false" title="White"><span class="sr">White</span></button>
-        <button type="button" data-set="mist" aria-pressed="false" title="Soft grey"><span class="sr">Soft grey</span></button>
-        <button type="button" data-set="ink" aria-pressed="false" title="Deep ink"><span class="sr">Deep ink</span></button>
-        <button type="button" data-set="violet" aria-pressed="false" title="Purple"><span class="sr">Purple</span></button>
-      </div>
       <span>© 2026 Leadish. Made in Doha.</span>
     </div>
   </div>

@@ -9,13 +9,11 @@ js/main.js          colour picker, scroll reveals, the looping call, the replay 
 assets/             fonts (Sora, Readex Pro Arabic), mascot faces, favicon, share image
 ```
 
-## Colours
+## Colour
 
-Four finishes, all from the brand palette: `light` (white), `mist` (Soft Grey), `ink` (Deep Ink) and `violet` (Leadish Purple).
-The page follows the visitor's light/dark setting (`light` or `ink`). The dots in the nav switch between all four.
-To preview one directly, add `?finish=ink` to the URL.
-
-To ship a single finish: set `data-theme` on `<html>`, then remove the `.finish` groups in `index.html`.
+The site uses one finish, Soft Grey (`data-theme="mist"` on `<html>` in `index.html` and `book.html`).
+The other finishes (white, deep ink, purple) are still defined in `css/styles.css`; the git tag
+`four-finishes` has the version with the colour picker.
 
 ## Booking (/book)
 
