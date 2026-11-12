@@ -9,7 +9,7 @@
   var started = Date.now();
 
   var $ = function (s, el) { return (el || document).querySelector(s); };
-  var stage = $('#main'), next = $('#next'), back = $('#back'), hint = $('#hint'), bar = $('#progress');
+  var stage = $('#main'), actions = $('#actions'), next = $('#next'), back = $('#back'), hint = $('#hint'), bar = $('#progress');
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ── Small helpers ── */
@@ -44,6 +44,19 @@
     return out;
   }
 
+  /* Example answers for the "what do you sell" step, so the fields read like their world. */
+  var EXAMPLES = {
+    'Real estate': ['Off-plan apartments in Lusail', 'Families and investors'],
+    'Cars': ['New SUVs and service plans', 'Families buying their first SUV'],
+    'Insurance': ['Health insurance for companies', 'HR managers at small companies'],
+    'Telecom': ['Business fibre and mobile plans', 'Small business owners'],
+    'Retail': ['Furniture and home decor', 'People moving into a new home'],
+    'Software': ['HR software', 'HR teams at mid-size companies'],
+    'Agency or media': ['Social media management', 'Restaurants and cafes'],
+    'Other': ['Your product or service', 'Your usual customer']
+  };
+  function example(d, k) { return (EXAMPLES[d.industry] || EXAMPLES.Other)[k]; }
+
   var TIMES = { Morning: '9 to 12', Midday: '12 to 3', Afternoon: '3 to 6' };
   var SIZES = { '1-5': '1 to 5', '6-10': '6 to 10', '11-25': '11 to 25', '26-50': '26 to 50', '50+': 'More than 50' };
 
@@ -51,13 +64,21 @@
   var STEPS = [
     { id: 'intro', type: 'intro',
       q: "Let's set up a free challenge for your sales team.",
-      sub: 'Ten quick questions. About a minute.', cta: "Let's go" },
+      sub: 'A few quick questions. About a minute.', cta: "Let's go" },
 
     { id: 'industry', type: 'single', cols: 2, q: 'What does your team sell?',
       options: [['Real estate'], ['Cars'], ['Insurance'], ['Telecom'], ['Retail'], ['Software'], ['Agency or media'], ['Other', 'Something else']] },
 
-    { id: 'teamSize', type: 'single', q: 'How many people are on your sales team?',
+    { id: 'offer', type: 'fields', q: 'What do you sell, and who buys it?',
+      sub: "We'll build the AI customer from your answer.",
       kicker: function (d) { return d.industry === 'Other' ? 'Got it.' : 'Got it, ' + d.industry.toLowerCase() + '.'; },
+      fields: [
+        { name: 'product', label: 'What you sell', required: true, placeholder: function (d) { return example(d, 0); } },
+        { name: 'customer', label: 'Who buys it', required: true, placeholder: function (d) { return example(d, 1); } }
+      ] },
+
+    { id: 'teamSize', type: 'single', q: 'How many people are on your sales team?',
+      kicker: function () { return "Good. We'll make the customer sound like yours."; },
       options: Object.keys(SIZES).map(function (k) { return [k, SIZES[k]]; }) },
 
     { id: 'struggles', type: 'multi', q: 'Where do new reps struggle most?',
@@ -96,7 +117,7 @@
         { name: 'email', label: 'Work email', type: 'email', auto: 'email', inputmode: 'email', optional: true, placeholder: 'you@company.com' }
       ] },
 
-    { id: 'notes', type: 'notes', q: 'Anything we should know?', sub: 'Optional. Your product, a tough customer, what you want to test.',
+    { id: 'notes', type: 'notes', q: 'Anything else we should know?', sub: 'Optional. A tough objection, a deal you keep losing, what you want to test.',
       kicker: function () { return 'Last one.'; } },
 
     { id: 'review', type: 'review', q: "Here's your challenge.", sub: 'Check it, then book.', cta: 'Book my challenge' },
@@ -111,7 +132,8 @@
     var saved = JSON.parse(localStorage.getItem(STORE) || 'null');
     if (saved && saved.data) { data = saved.data; at = Math.min(saved.at || 0, LAST_Q); }
   } catch (e) {}
-  if (data.date && workingDays().indexOf(data.date) < 0) { delete data.date; if (at > 6) at = 6; }
+  var DATE_AT = STEPS.map(function (s) { return s.id; }).indexOf('date');
+  if (data.date && workingDays().indexOf(data.date) < 0) { delete data.date; if (at > DATE_AT) at = DATE_AT; }
   function save() { try { localStorage.setItem(STORE, JSON.stringify({ at: at, data: data })); } catch (e) {} }
 
   /* ── Validation ── */
@@ -120,6 +142,7 @@
   function fieldError(f, v) {
     v = String(v || '').trim();
     if (f.required && !v) return f.name === 'phone' ? 'Add a number we can message.' : 'Please fill this in.';
+    if (f.required && v.length < 2) return 'A few more words, please.';
     if (f.name === 'phone' && v && !phoneOk(v)) return 'That number looks too short. Include the country code.';
     if (f.name === 'email' && !emailOk(v)) return 'That email looks off. Check for a typo.';
     return '';
@@ -138,7 +161,7 @@
     var s = STEPS[at];
     document.body.classList.toggle('is-done', s.type === 'done');
     stage.textContent = '';
-    var wrap = el('section', { class: 'bk-step' + (dir < 0 ? ' from-back' : ''), 'aria-labelledby': 'q' });
+    var wrap = el('section', { class: 'bk-step bk-step--' + s.type + (dir < 0 ? ' from-back' : ''), 'aria-labelledby': 'q' });
     if (reduce) wrap.style.animation = 'none';
 
     if (s.type === 'done') { wrap.appendChild(doneView()); stage.appendChild(wrap); footer(s); return; }
@@ -158,6 +181,7 @@
     if (s.type === 'notes') body.appendChild(notesView());
     if (s.type === 'review') body.appendChild(reviewView());
     if (body.childNodes.length) wrap.appendChild(body);
+    wrap.appendChild(actions);
     stage.appendChild(wrap);
     footer(s);
 
@@ -237,7 +261,7 @@
       var id = 'f-' + f.name, err = el('p', { class: 'fld__err', id: id + '-err', hidden: true });
       var input = el('input', {
         id: id, name: f.name, type: f.type || 'text', autocomplete: f.auto, inputmode: f.inputmode,
-        placeholder: f.placeholder, required: !!f.required, maxlength: f.name === 'email' ? 160 : 120,
+        placeholder: typeof f.placeholder === 'function' ? f.placeholder(data) : f.placeholder, required: !!f.required, maxlength: f.name === 'email' ? 160 : 120,
         'aria-describedby': id + '-err',
         oninput: function () { data[f.name] = input.value; save(); input.removeAttribute('aria-invalid'); err.hidden = true; next.disabled = !valid(s); },
         onblur: function () { var m = input.value ? fieldError(f, input.value) : ''; showErr(input, err, m); }
@@ -259,7 +283,7 @@
   function notesView() {
     var t = el('textarea', {
       id: 'f-notes', maxlength: 1000, rows: 5, 'aria-labelledby': 'q',
-      placeholder: 'We sell off-plan apartments. Buyers always ask about the payment plan.',
+      placeholder: 'Buyers always ask for a better payment plan.',
       oninput: function () { data.notes = t.value; save(); footer(STEPS[at]); }
     });
     t.value = data.notes || '';
@@ -269,6 +293,7 @@
   function rows(withEdit) {
     var list = [
       ['Team', data.industry === 'Other' ? 'Sales team' : data.industry, SIZES[data.teamSize] + ' people', 'industry'],
+      ['Sells', data.product, data.customer ? 'Buyers: ' + data.customer : null, 'offer'],
       ['Focus', (data.struggles || []).length ? data.struggles.join(', ') : 'Not sure yet', null, 'struggles'],
       ['Language', data.language, null, 'language'],
       ['Where', data.where === 'Online' ? 'Online' : 'At your office', null, 'where'],
@@ -301,7 +326,7 @@
       'Free team challenge request', '',
       'Company: ' + data.company, 'Name: ' + data.name + (data.role ? ' (' + data.role + ')' : ''),
       'WhatsApp: ' + data.phone, data.email ? 'Email: ' + data.email : null,
-      'Sells: ' + data.industry, 'Team size: ' + data.teamSize,
+      'Industry: ' + data.industry, 'Sells: ' + data.product, 'Sells to: ' + data.customer, 'Team size: ' + data.teamSize,
       'Focus: ' + ((data.struggles || []).join(', ') || 'Not sure yet'),
       'Language: ' + data.language, 'Where: ' + data.where,
       'When: ' + niceDate(data.date, true) + ', ' + data.time + ' (' + TIMES[data.time] + ')',
@@ -325,7 +350,7 @@
   }
 
   function doneView() {
-    var ticket = el('div', { class: 'bk-ticket glass' }, rows(false).slice(0, 5));
+    var ticket = el('div', { class: 'bk-ticket glass' }, rows(false).slice(0, 6));
     var ics = el('button', { type: 'button', class: 'btn btn--glass', text: 'Add to calendar', onclick: downloadIcs });
     return el('div', { class: 'bk-done' }, [
       face(),
@@ -426,7 +451,7 @@
     next.appendChild(el('span', { class: 'spin', 'aria-hidden': 'true' }));
     next.appendChild(document.createTextNode(' Booking'));
     var payload = {
-      industry: data.industry, teamSize: data.teamSize, struggles: data.struggles || [], language: data.language,
+      industry: data.industry, product: data.product, customer: data.customer, teamSize: data.teamSize, struggles: data.struggles || [], language: data.language,
       where: data.where, date: data.date, time: data.time, name: data.name, role: data.role || '',
       company: data.company, phone: data.phone, email: data.email || '', notes: (data.notes || '').trim(),
       website: data.website || '', elapsed: Date.now() - started, page: location.href

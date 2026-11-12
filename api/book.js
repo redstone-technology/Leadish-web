@@ -30,6 +30,8 @@ function validate(b) {
   const errors = [];
   const out = {
     industry: clean(b.industry, 40),
+    product: clean(b.product, 120),
+    customer: clean(b.customer, 120),
     teamSize: clean(b.teamSize, 10),
     struggles: Array.isArray(b.struggles) ? b.struggles.map((s) => clean(s, 40)).filter((s) => STRUGGLES.includes(s)) : [],
     language: clean(b.language, 10),
@@ -44,6 +46,8 @@ function validate(b) {
     notes: clean(b.notes, 1000),
   };
   if (!INDUSTRIES.includes(out.industry)) errors.push('industry');
+  if (out.product.length < 2) errors.push('product');
+  if (out.customer.length < 2) errors.push('customer');
   if (!SIZES.includes(out.teamSize)) errors.push('teamSize');
   if (!LANGUAGES.includes(out.language)) errors.push('language');
   if (!WHERE.includes(out.where)) errors.push('where');
@@ -76,6 +80,8 @@ async function saveToNotion(b) {
     Role: { rich_text: text(b.role) },
     WhatsApp: { phone_number: b.phone },
     Industry: { select: { name: b.industry } },
+    Sells: { rich_text: text(b.product) },
+    'Sells to': { rich_text: text(b.customer) },
     'Team size': { select: { name: b.teamSize } },
     Struggles: { multi_select: b.struggles.map((name) => ({ name })) },
     Language: { select: { name: b.language } },
@@ -107,7 +113,8 @@ async function sendAlert(b, notionUrl) {
     `Where: ${b.where === 'Online' ? 'Online' : 'At their office'}`,
     `WhatsApp: ${b.phone}`,
     b.email ? `Email: ${b.email}` : null,
-    `Sells: ${b.industry} · Team size: ${b.teamSize} · Language: ${b.language}`,
+    `Sells: ${b.product}, to ${b.customer}`,
+    `Industry: ${b.industry} · Team size: ${b.teamSize} · Language: ${b.language}`,
     `Focus: ${b.struggles.length ? b.struggles.join(', ') : 'Not sure yet'}`,
     b.notes ? `Notes: ${b.notes}` : null,
     notionUrl ? `\nIn Notion: ${notionUrl}` : null,
