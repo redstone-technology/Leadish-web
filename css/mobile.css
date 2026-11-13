@@ -1,0 +1,188 @@
+/* Leadish — the phone page (≤ 640px).
+   Not a squeezed desktop: a column of self-contained blocks, one idea each,
+   read top to bottom like a well-made email. Same brand: Soft Grey ground,
+   frosted glass, Leadish Purple panels, the green conversation line. */
+
+#main, .foot, .skip--d { display: none; }
+.m, .skip--m { display: block; }
+
+.m {
+  --violet-panel: #7654D6;
+  padding: 78px 10px 10px;
+  padding-left: max(10px, env(safe-area-inset-left));
+  padding-right: max(10px, env(safe-area-inset-right));
+  display: flex; flex-direction: column; gap: 10px;
+  scroll-padding-top: 80px;
+}
+.m section { scroll-margin-top: 78px; }
+
+/* ── The block ── */
+.m-block { padding: 30px 20px 26px; border-radius: 30px; text-align: center; }
+.m-label { margin-bottom: 12px; font-size: 11.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ai); }
+.m h1 { font-size: clamp(38px, 11.6vw, 46px); line-height: .98; letter-spacing: -.052em; font-weight: 600; }
+.m h2 { font-size: clamp(28px, 8.4vw, 33px); line-height: 1.04; letter-spacing: -.044em; font-weight: 600; text-wrap: balance; }
+.m-lede { margin: 12px auto 0; max-width: 32ch; font-size: 15.5px; line-height: 1.5; color: var(--text-2); letter-spacing: -.01em; text-wrap: pretty; }
+.m-cta { width: 100%; margin-top: 24px; height: 52px; }
+.m-note { margin-top: 12px; font-size: 13px; color: var(--text-3); }
+
+/* ── 1. Hero: a purple "photo" panel with the live call, then the headline ── */
+.m-hero { padding: 8px 8px 26px; }
+.m-art {
+  position: relative; overflow: hidden;
+  padding: 26px 22px 24px; border-radius: 24px;
+  background: var(--violet-panel) var(--grain-glass);
+}
+.m-art__line { left: 0; top: 0; width: 100%; height: 100%; transform: none; }
+.m-art .ribbon path, .m-close .ribbon path { stroke: #20B878; }
+
+.m-call {
+  position: relative; z-index: 1; max-width: 300px; margin: 0 auto;
+  padding: 16px 16px 18px; border-radius: 26px;
+  background: rgba(255, 255, 255, .82) var(--grain-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(255, 255, 255, .5), 0 24px 44px -22px rgba(30, 12, 90, .65);
+  text-align: center;
+}
+.m-call__head { display: flex; align-items: center; gap: 10px; text-align: left; }
+.m-call .avatar { width: 40px; height: 40px; }
+.m-call__who { flex: 1; min-width: 0; }
+.m-call__who b { display: block; font-size: 14.5px; font-weight: 600; letter-spacing: -.02em; line-height: 1.2; }
+.m-call__who small { display: flex; align-items: center; gap: 5px; margin-top: 2px; font-size: 11.5px; color: var(--text-3); white-space: nowrap; }
+.m-call__clock { display: flex; flex-direction: column; align-items: flex-end; font-size: 11.5px; line-height: 1.2; color: var(--text-3); }
+.m-call__clock b { margin-top: 3px; font-size: 13.5px; font-weight: 500; color: var(--text-2); }
+
+.m-orb { position: relative; width: 112px; height: 112px; margin: 20px auto 0; --c: var(--ai-fill); }
+.m-call[data-turn="you"] .m-orb { --c: var(--you-fill); }
+.m-orb .orb__ball { inset: 0; }
+.m-call__state { margin-top: 16px; font-size: 16px; font-weight: 500; letter-spacing: -.025em; }
+.m-call__state em { font-style: normal; color: var(--ai); transition: color .4s var(--ease); }
+.m-call[data-turn="you"] .m-call__state em { color: var(--you); }
+.m-call .wave { height: 20px; margin-top: 8px; }
+.m-call[data-turn="you"] .wave { color: var(--you); }
+.m-call__line { min-height: 42px; margin: 10px auto 0; max-width: 26ch; font-size: 13.5px; line-height: 1.45; color: var(--text-2); text-wrap: balance; }
+.js .m-call__line.is-new { animation: say .5s var(--spring) both; }
+
+.m-hero__copy { padding: 28px 12px 0; }
+.m-hero__copy .m-label { margin-bottom: 14px; }
+
+/* ── 2. Problem: one big number ── */
+.m-problem h2 span { color: var(--text-3); }
+.m-big { margin-top: 24px; font-size: 84px; font-weight: 600; letter-spacing: -.065em; line-height: .9; }
+.m-big small { margin-left: .3em; font-size: .24em; font-weight: 500; letter-spacing: -.02em; color: var(--text-2); }
+.m-problem .m-lede { margin-top: 10px; }
+.m-problem cite { display: block; margin-top: 14px; font-style: normal; font-size: 12px; color: var(--text-3); }
+
+/* ── 3. How a round works: four moves around the mascot ── */
+.m-ring { position: relative; width: 100%; max-width: 360px; margin: 22px auto 0; aspect-ratio: 1 / 1.07; }
+.m-ring__circle {
+  position: absolute; left: 50%; top: 50%; width: 56%; aspect-ratio: 1; transform: translate(-50%, -50%);
+  border-radius: 50%; border: 1.5px dashed color-mix(in srgb, var(--you-fill) 70%, transparent);
+}
+.m-ring__circle i { position: absolute; width: 12px; height: 12px; margin: -6px; border-radius: 50%; background: var(--you-fill); box-shadow: 0 0 0 5px var(--you-soft); }
+.m-ring__circle .d2, .m-ring__circle .d3 { background: var(--ai-fill); box-shadow: 0 0 0 5px var(--ai-soft); }
+/* the four points at the diagonals of the circle */
+.m-ring__circle .d1 { left: 14.6%; top: 14.6%; }
+.m-ring__circle .d2 { left: 85.4%; top: 14.6%; }
+.m-ring__circle .d3 { left: 14.6%; top: 85.4%; }
+.m-ring__circle .d4 { left: 85.4%; top: 85.4%; }
+.m-ring__core {
+  position: absolute; left: 50%; top: 50%; width: 31%; aspect-ratio: 1; transform: translate(-50%, -50%);
+  display: grid; place-items: center; border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, .55) 0, rgba(255, 255, 255, .12) 18%, transparent 38%),
+    var(--ai-fill);
+  box-shadow: 0 18px 36px -14px var(--ai-fill), inset 0 -8px 18px rgba(12, 25, 32, .16);
+  color: #fff;
+}
+.m-ring__core svg { width: 38%; height: auto; aspect-ratio: 402 / 518; }
+.m-ring ol { position: absolute; inset: 0; }
+.m-ring li { position: absolute; width: 43%; display: flex; flex-direction: column; gap: 3px; }
+.m-ring li b { font-size: 15px; font-weight: 600; letter-spacing: -.025em; line-height: 1.2; }
+.m-ring li span { font-size: 12.5px; line-height: 1.38; color: var(--text-2); letter-spacing: -.005em; }
+.m-ring .n1 { left: 0; top: 0; text-align: left; }
+.m-ring .n2 { right: 0; top: 0; text-align: right; }
+.m-ring .n3 { left: 0; bottom: 0; text-align: left; }
+.m-ring .n4 { right: 0; bottom: 0; text-align: right; }
+.m-ring .n1 b, .m-ring .n4 b { color: var(--you); }
+.m-ring .n2 b, .m-ring .n3 b { color: var(--ai); }
+
+/* ── 4. Managers: a mini call list with one replay open ── */
+.m-calls { margin-top: 22px; padding: 6px; border-radius: 22px; background: var(--glass-inset); box-shadow: inset 0 0 0 1px var(--hair); text-align: left; }
+.m-callrow { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 10px; padding: 10px 12px 10px 10px; border-radius: 16px; }
+.m-callrow + .m-callrow, .m-replay + .m-callrow { border-top: 1px solid var(--hair); border-radius: 0; }
+.m-callrow.is-open { background: var(--glass-thick); box-shadow: var(--lift-s); border-radius: 16px 16px 0 0; }
+.m-callrow__who b { display: block; font-size: 14.5px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
+.m-callrow__who small { display: block; font-size: 12px; color: var(--text-3); line-height: 1.3; }
+.m-callrow .won { font-size: 12.5px; }
+.m-callrow__out { font-size: 12.5px; color: var(--text-3); }
+.m-callrow__score { min-width: 28px; text-align: right; font-size: 18px; font-weight: 600; letter-spacing: -.03em; }
+.m-callrow.is-open .m-callrow__score { color: var(--you); }
+.m-replay { display: flex; flex-direction: column; gap: 10px; padding: 12px 10px 14px; margin-bottom: 4px; border-radius: 0 0 16px 16px; background: var(--glass-thick); box-shadow: var(--lift-s); }
+.m-replay .player { padding: 8px 12px 8px 8px; background: var(--glass-inset); box-shadow: inset 0 0 0 1px var(--hair); }
+.m-replay .player button { width: 34px; height: 34px; }
+.m-replay .say { font-size: 13px; max-width: 88%; }
+
+/* ── 5. Proof: a 2×2 of stat tiles ── */
+.m-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 22px; }
+.m-tiles div { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 20px 12px 18px; border-radius: 20px; background: var(--glass-thick); box-shadow: var(--lift-s); }
+.m-tiles b { font-size: 36px; font-weight: 600; letter-spacing: -.055em; line-height: 1; }
+.m-tiles b small { margin-left: 2px; font-size: .42em; font-weight: 500; letter-spacing: -.02em; color: var(--text-3); }
+.m-tiles div:nth-child(1) b, .m-tiles div:nth-child(4) b { color: var(--you); }
+.m-tiles div:nth-child(2) b, .m-tiles div:nth-child(3) b { color: var(--ai); }
+.m-tiles span { font-size: 12.5px; line-height: 1.38; color: var(--text-2); text-wrap: balance; }
+
+/* ── 6. Team challenge: the live board, then four steps ── */
+.m-board { margin-top: 22px; padding: 16px 12px 12px; border-radius: 22px; background: var(--glass-thick); box-shadow: var(--lift-s); text-align: left; }
+.m-board__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 0 4px; margin-bottom: 12px; }
+.m-board__head b { display: block; font-size: 15px; font-weight: 600; letter-spacing: -.025em; }
+.m-board__head small { display: block; margin-top: 2px; font-size: 12px; }
+.m-board .code b { font-size: 20px; }
+.m-board ol { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.m-board .row { height: 48px; padding: 0 14px 0 12px; gap: 10px; border-radius: 14px; }
+.m-board .row:first-child { background: var(--you-soft); box-shadow: none; }
+.m-board .row__score { font-size: 17px; min-width: 36px; }
+
+.m-steps { margin-top: 18px; counter-reset: s; text-align: left; }
+.m-steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; align-items: center; gap: 10px; padding: 9px 4px; font-size: 14.5px; line-height: 1.4; letter-spacing: -.01em; }
+.m-steps li + li { border-top: 1px solid var(--hair); }
+.m-steps li::before {
+  content: counter(s); display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  font-size: 13px; font-weight: 600; color: var(--you); background: var(--you-soft);
+}
+
+/* ── 7. Close: the purple panel again, the mascot, one button ── */
+.m-close {
+  position: relative; overflow: hidden; padding: 40px 22px 84px;
+  background: var(--violet-panel) var(--grain-glass); color: #fff;
+  box-shadow: 0 24px 50px -28px rgba(50, 24, 140, .7);
+}
+.m-close__line { left: 0; top: auto; bottom: -6px; width: 100%; height: auto; transform: none; opacity: .9; }
+.m-close > *:not(.ribbon) { position: relative; z-index: 1; }
+.m-close__face { width: 48px; margin: 0 auto 22px; color: #fff; }
+.m-close__face svg { width: 100%; height: auto; aspect-ratio: 402 / 518; }
+.m-close .m-lede { color: rgba(255, 255, 255, .86); }
+.m-btn-light { background: #fff; color: #2A1B6B; box-shadow: 0 14px 30px -14px rgba(20, 8, 72, .6); }
+.m-btn-light:hover { background: #fff; }
+.m-close__mail { margin-top: 14px; font-size: 13px; color: rgba(255, 255, 255, .78); }
+.m-close__mail a { color: #fff; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, .4); text-underline-offset: 3px; }
+
+/* ── Footer, centred like an email's ── */
+.m-foot { padding: 26px 10px 30px; text-align: center; font-size: 13px; color: var(--text-3); }
+.m-foot__logo { display: inline-flex; color: var(--text); }
+.m-foot__logo svg { height: 24px; width: auto; aspect-ratio: 2524 / 696; }
+.m-foot nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 18px; margin: 16px 0 12px; }
+.m-foot nav a { color: var(--text-2); padding: 4px 0; }
+
+/* Motion: blocks rise in a little; the ring turns slowly */
+.js .m .reveal { transform: translateY(16px); }
+.js .m .reveal.in { transform: none; }
+.m-ring__circle { animation: m-turn 40s linear infinite; }
+@keyframes m-turn { to { transform: translate(-50%, -50%) rotate(360deg); } }
+.m-ring__core { animation: m-breathe 3.2s ease-in-out infinite; }
+@keyframes m-breathe { 50% { transform: translate(-50%, -50%) scale(1.05); } }
+
+@media (max-width: 360px) {
+  .m-block { padding-left: 16px; padding-right: 16px; }
+  .m-ring li span { font-size: 12px; }
+  .m-big { font-size: 72px; }
+}
