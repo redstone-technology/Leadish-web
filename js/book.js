@@ -336,10 +336,18 @@
 
   /* Slot for the Leadish intro video. To add it, replace this block with a <video> or an embed. */
   function videoSlot() {
-    return el('figure', { class: 'bk-video glass', 'aria-label': 'Leadish intro video, coming soon' }, [
-      el('span', { class: 'bk-video__play', 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.6v12.8a.8.8 0 0 0 1.2.7l10.1-6.4a.8.8 0 0 0 0-1.4L9.2 4.9A.8.8 0 0 0 8 5.6Z"/></svg>' }),
-      el('figcaption', {}, [el('b', { text: 'Meet Leadish' }), el('span', { text: 'A short intro video is on its way.' })])
-    ]);
+    var video = el('video', { class: 'bk-video__media', src: '/assets/leadish-intro.mp4', poster: '/assets/leadish-intro-poster.jpg',
+      preload: 'metadata', playsinline: true, 'aria-label': 'Leadish intro video' });
+    var start = el('button', { type: 'button', class: 'bk-video__start', 'aria-label': 'Play the Leadish intro video',
+      html: '<span class="bk-video__play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.6v12.8a.8.8 0 0 0 1.2.7l10.1-6.4a.8.8 0 0 0 0-1.4L9.2 4.9A.8.8 0 0 0 8 5.6Z"/></svg></span><span class="bk-video__len">Watch · 1 min</span>' });
+    var box = el('figure', { class: 'bk-video glass' }, [video, start]);
+    start.addEventListener('click', function () {
+      box.classList.add('is-playing');
+      video.setAttribute('controls', '');
+      var p = video.play(); if (p && p.catch) p.catch(function () {});
+      video.focus();
+    });
+    return box;
   }
 
   function doneView() {
