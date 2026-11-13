@@ -153,10 +153,11 @@
   }
 
   /* ── Leaderboard: scores land, rows trade places ── */
-  var board = $('#board');
-  if (board && !reduce && 'IntersectionObserver' in window) {
+  $$('[data-board]').forEach(function (board) {
+    if (reduce || !('IntersectionObserver' in window)) return;
     var START = $$('.row', board).map(function (r) { return { name: $('.row__name', r).textContent, score: +r.dataset.score, tries: +r.dataset.tries }; });
-    var MOVES = [['Sara', 23], ['Omar', 19], ['Maha', 16], ['Yousef', 12], ['Omar', 24]];
+    var names = START.map(function (s) { return s.name; });
+    var MOVES = [['Sara', 23], ['Omar', 19], ['Maha', 16], ['Yousef', 12], ['Omar', 24]].filter(function (mv) { return names.indexOf(mv[0]) > -1; });
     var m = 0, loop = null;
     function rowOf(name) { return $$('.row', board).filter(function (r) { return $('.row__name', r).textContent === name; })[0]; }
     function order() {
@@ -194,5 +195,5 @@
       clearInterval(loop);
       if (entries[0].isIntersecting) loop = setInterval(play, 2800);
     }, { threshold: 0.4 }).observe(board);
-  }
+  });
 })();

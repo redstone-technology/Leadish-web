@@ -201,6 +201,9 @@ img, svg { display: block; max-width: 100%; }
 
 .wrap { width: min(var(--wrap), 100% - 2 * var(--gutter)); margin-inline: auto; }
 
+/* The phone gets its own page (css/mobile.css). Hidden everywhere else. */
+.m, .skip--m { display: none; }
+
 /* ───────────── Frosted ground ───────────── */
 .grain { position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: var(--grain-page); }
 
