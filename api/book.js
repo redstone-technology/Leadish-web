@@ -14,6 +14,7 @@
 // Nothing secret lives in this file.
 
 const DEFAULT_DB = '226b3757ecad4fb0b2a5f7ccda1d0487';
+const { isFull } = require('./_capacity');
 
 const INDUSTRIES = ['Real estate', 'Cars', 'Insurance', 'Telecom', 'Retail', 'Software', 'Agency or media', 'Other'];
 const SIZES = ['1-5', '6-10', '11-25', '26-50', '50+'];
@@ -57,6 +58,7 @@ function validate(b) {
     notes: clean(b.notes, 1000),
     source: clean(b.source, 60),
     campaign: clean(b.campaign, 120),
+    waitlist: b.waitlist === true,
   };
   if (!INDUSTRIES.includes(out.industry)) errors.push('industry');
   if (!SIZES.includes(out.teamSize)) errors.push('teamSize');
@@ -65,7 +67,7 @@ function validate(b) {
   out.fit = fitOf(out);
   const booking = out.fit !== 'Not a fit';
   if (booking && !WHERE.includes(out.where)) errors.push('where');
-  if (booking && !TIMES[out.time]) errors.push('time');
+  if (booking && !out.waitlist && !TIMES[out.time]) errors.push('time');
   if (!out.name) errors.push('name');
   if (!out.company) errors.push('company');
 
@@ -73,7 +75,8 @@ function validate(b) {
   if (digits.length < 7 || digits.length > 15 || !/^[+\d\s()-]+$/.test(out.phone)) errors.push('phone');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(out.email)) errors.push('email');
 
-  if (!booking) { out.where = ''; out.date = ''; out.time = ''; }
+  if (!booking) { out.where = ''; out.date = ''; out.time = ''; out.waitlist = false; }
+  else if (out.waitlist) { out.date = ''; out.time = ''; }
   else if (!/^\d{4}-\d{2}-\d{2}$/.test(out.date)) errors.push('date');
   else {
     const day = new Date(out.date + 'T12:00:00+03:00');
@@ -107,8 +110,9 @@ async function saveToNotion(b) {
   if (b.date) {
     props.Date = { date: { start: b.date } };
     props.Time = { select: { name: b.time } };
-    props.Where = { select: { name: b.where } };
   }
+  if (b.where) props.Where = { select: { name: b.where } };
+  if (b.waitlist) props.Status = { status: { name: 'Waitlist' } };
 
   const res = await fetch('https://api.notion.com/v1/pages', {
     method: 'POST',
@@ -125,7 +129,9 @@ async function saveToNotion(b) {
 
 async function sendAlert(b, notionUrl) {
   const lines = [
-    b.date
+    b.waitlist
+      ? `${b.name} (${b.role}) at ${b.company} wants a free challenge, but the week is full. On the waitlist (${b.where}).`
+      : b.date
       ? `${b.name} (${b.role}) at ${b.company} asked for a free team challenge.`
       : `${b.name} (${b.role}) at ${b.company} is not a fit yet (small team). Saved to the waitlist.`,
     `Fit: ${b.fit}`,
@@ -149,7 +155,7 @@ async function sendAlert(b, notionUrl) {
       from: process.env.BOOKING_ALERT_FROM || 'Leadish Bookings <onboarding@resend.dev>',
       to: [process.env.BOOKING_ALERT_TO],
       reply_to: b.email,
-      subject: b.date ? `[${b.fit}] Challenge request: ${b.company}, ${niceDate(b.date)}` : `[Not a fit] Waitlist: ${b.company}`,
+      subject: b.waitlist ? `[${b.fit}] Waitlist (week full): ${b.company}` : b.date ? `[${b.fit}] Challenge request: ${b.company}, ${niceDate(b.date)}` : `[Not a fit] Waitlist: ${b.company}`,
       text: lines.join('\n'),
     }),
   });
@@ -180,6 +186,11 @@ module.exports = async function handler(req, res) {
     return res.status(503).json({ ok: false, error: 'not_configured' });
   }
 
+  // The week may have filled up while they were answering: put them on the waitlist instead.
+  if (out.date && canNotion) {
+    try { if (await isFull(out.where, out.date)) { out.waitlist = true; out.date = ''; out.time = ''; } } catch (e) { console.error('capacity:', e.message); }
+  }
+
   let saved = 0, notionUrl = null;
   if (canNotion) {
     try { notionUrl = await saveToNotion(out); saved++; } catch (e) { console.error(e.message); }
@@ -188,5 +199,5 @@ module.exports = async function handler(req, res) {
     try { await sendAlert(out, notionUrl); saved++; } catch (e) { console.error(e.message); }
   }
   if (!saved) return res.status(502).json({ ok: false, error: 'not_saved' });
-  return res.status(200).json({ ok: true });
+  return res.status(200).json({ ok: true, waitlist: out.waitlist });
 };

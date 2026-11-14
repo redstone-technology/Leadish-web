@@ -37,11 +37,22 @@
     return parseDate(s).toLocaleDateString('en-GB', long ? { weekday: 'long', day: 'numeric', month: 'long' } : { weekday: 'short', day: 'numeric', month: 'short' });
   }
 
-  /* Working days in Qatar: Sunday to Thursday. Offer the next ten, starting two days out. */
+  /* Working days in Qatar: Sunday to Thursday. Offer the next fifteen (three weeks), starting two days out. */
   function workingDays() {
     var out = [], d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + 2);
-    while (out.length < 10) { if (d.getDay() !== 5 && d.getDay() !== 6) out.push(iso(d)); d.setDate(d.getDate() + 1); }
+    while (out.length < 15) { if (d.getDay() !== 5 && d.getDay() !== 6) out.push(iso(d)); d.setDate(d.getDate() + 1); }
     return out;
+  }
+
+  /* Weekly limit (3 online, 1 at the office): weeks that are already full come from /api/slots. */
+  var FULL = { Online: [], 'At their office': [] };
+  function weekOf(isoDate) { var d = parseDate(isoDate); d.setDate(d.getDate() - d.getDay()); return iso(d); }
+  function isFullDay(where, isoDate) { return !!(FULL[where] && FULL[where].indexOf(weekOf(isoDate)) > -1); }
+  if (!DEMO && window.fetch) {
+    fetch((window.LEADISH_SLOTS_ENDPOINT || '/api/slots'), { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (j && j.full) { FULL = j.full; if (STEPS[at] && STEPS[at].id === 'date') render(0); } })
+      .catch(function () {});
   }
 
   var TIMES = { Morning: '9 to 12', Midday: '12 to 3', Afternoon: '3 to 6' };
@@ -109,11 +120,11 @@
       kicker: function (d) { return d.struggles && d.struggles.length ? "Noted. We'll make it hard there." : "That's fine. The scores will show you."; },
       options: [['At their office', 'At your office', 'We come to you, in Doha'], ['Online', 'Online', 'Everyone joins from a link']] },
 
-    { id: 'date', type: 'date', q: 'Which day would work best for your team?', sub: "Sunday to Thursday. We'll confirm with you first.",
+    { id: 'date', type: 'date', q: 'Which day would work best for your team?', sub: function (d) { return d.where === 'Online' ? "Sunday to Thursday. We run 3 online challenges a week, so some weeks fill up." : "Sunday to Thursday. We visit 1 team a week, so some weeks fill up."; },
       skip: function (d) { return !booking(d); },
       kicker: function (d) { return d.where === 'Online' ? "We'll send the link." : "We'll come to you."; } },
 
-    { id: 'time', type: 'single', q: 'What time usually works best?', skip: function (d) { return !booking(d); },
+    { id: 'time', type: 'single', q: 'What time usually works best?', skip: function (d) { return !booking(d) || !!d.waitlist; },
       kicker: function (d) { return niceDate(d.date, true) + '. Nice.'; },
       options: Object.keys(TIMES).map(function (k) { return [k, k, TIMES[k]]; }) },
 
@@ -163,7 +174,8 @@
   }
   function valid(s) {
     switch (s.type) {
-      case 'single': case 'date': return !!data[s.id];
+      case 'single': return !!data[s.id];
+      case 'date': return !!data.waitlist || (!!data.date && !isFullDay(data.where, data.date));
       case 'multi': return Array.isArray(data[s.id]);
       case 'fields': return s.fields.every(function (f) { return !fieldError(f, data[f.name]); });
       default: return true;
@@ -252,21 +264,33 @@
   }
 
   function dateView(s) {
+    var wrap = el('div', {});
     var list = el('div', { class: 'opts opts--dates', role: 'radiogroup', 'aria-labelledby': 'q' });
-    workingDays().forEach(function (d, idx) {
-      var dt = parseDate(d);
+    var days = workingDays(), open = 0;
+    if (data.date && isFullDay(data.where, data.date)) { delete data.date; save(); }
+    days.forEach(function (d, idx) {
+      var dt = parseDate(d), full = isFullDay(data.where, d);
+      if (!full) open++;
       var b = el('button', {
-        type: 'button', class: 'opt opt--date glass glass--thin', role: 'radio', 'aria-checked': String(data.date === d),
-        'aria-label': niceDate(d, true), 'data-i': idx,
-        onclick: function () { pick(s, d, b); }
+        type: 'button', class: 'opt opt--date glass glass--thin' + (full ? ' is-full' : ''), role: 'radio', 'aria-checked': String(!full && data.date === d),
+        'aria-label': niceDate(d, true) + (full ? ', full' : ''), 'data-i': idx, disabled: full,
+        onclick: function () { data.waitlist = false; pick(s, d, b); }
       }, [
         el('small', { text: dt.toLocaleDateString('en-GB', { weekday: 'short' }) }),
         el('b', { text: String(dt.getDate()) }),
-        el('span', { text: dt.toLocaleDateString('en-GB', { month: 'short' }) })
+        el('span', { text: full ? 'Full' : dt.toLocaleDateString('en-GB', { month: 'short' }) })
       ]);
       list.appendChild(b);
     });
-    return list;
+    wrap.appendChild(list);
+    if (!open) {
+      wrap.appendChild(el('div', { class: 'bk-full glass glass--thin' }, [
+        el('p', {}, [el('b', { text: 'The next few weeks are full. ' }), "Join the waitlist and you're first in line. We'll message you on WhatsApp as soon as a day opens."]),
+        el('button', { type: 'button', class: 'btn btn--primary btn--s', 'aria-pressed': String(!!data.waitlist), text: data.waitlist ? 'On the waitlist ✓' : 'Join the waitlist',
+          onclick: function () { data.waitlist = true; delete data.date; delete data.time; save(); forward(); } })
+      ]));
+    }
+    return wrap;
   }
 
   function fieldsView(s) {
@@ -355,7 +379,9 @@
     return el('div', { class: 'bk-done' }, [
       face(),
       el('h1', { tabindex: '-1', id: 'q', text: 'Thank you, ' + (first(data.name) || 'there') + '.' }),
-      el('p', { class: 'lede', text: fitLead
+      el('p', { class: 'lede', text: fitLead && data.waitlist
+        ? "This week's free challenges are full, so you're on the waitlist and first in line. We'll message you on WhatsApp as soon as a day opens."
+        : fitLead
         ? "Your free challenge request is in. We'll contact you on WhatsApp within one working day to confirm the date and details."
         : "Our free challenges are for sales teams of 6 or more for now. We've saved your details and will reach out on WhatsApp when we can run one for you." }),
       fitLead ? null : el('p', { class: 'bk-done__note', text: 'If your manager wants to book one for a bigger team, send them this page.' }),
@@ -445,7 +471,7 @@
     var payload = {
       industry: data.industry, teamSize: data.teamSize, role: data.role, practice: data.practice,
       struggles: data.struggles || [], where: booking(data) ? data.where : '',
-      date: booking(data) ? data.date : '', time: booking(data) ? data.time : '', name: data.name, company: data.company,
+      date: booking(data) && !data.waitlist ? data.date : '', time: booking(data) && !data.waitlist ? data.time : '', waitlist: booking(data) && !!data.waitlist, name: data.name, company: data.company,
       phone: data.phone, email: data.email, notes: (data.notes || '').trim(),
       website: data.website || '', elapsed: Date.now() - started, page: location.href,
       source: window.leadishRef ? window.leadishRef().source : '', campaign: window.leadishRef ? window.leadishRef().campaign : ''
@@ -457,6 +483,7 @@
     send.then(function (res) {
       busy = false; next.classList.remove('is-busy');
       if (!res.ok) { error = 'server'; return render(0); }
+      if (res.waitlist) data.waitlist = true;
       try { localStorage.removeItem(STORE); } catch (e) {}
       go(STEPS.length - 1, 1);
       confetti();
