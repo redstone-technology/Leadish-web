@@ -55,6 +55,8 @@ function validate(b) {
     phone: clean(b.phone, 24),
     email: clean(b.email, 160),
     notes: clean(b.notes, 1000),
+    source: clean(b.source, 60),
+    campaign: clean(b.campaign, 120),
   };
   if (!INDUSTRIES.includes(out.industry)) errors.push('industry');
   if (!SIZES.includes(out.teamSize)) errors.push('teamSize');
@@ -100,6 +102,8 @@ async function saveToNotion(b) {
     Notes: { rich_text: text(b.notes) },
   };
   props.Email = { email: b.email };
+  if (b.source) props.Source = { rich_text: text(b.source) };
+  if (b.campaign) props.Campaign = { rich_text: text(b.campaign) };
   if (b.date) {
     props.Date = { date: { start: b.date } };
     props.Time = { select: { name: b.time } };
@@ -134,6 +138,7 @@ async function sendAlert(b, notionUrl) {
     `Practice today: ${b.practice}`,
     `Test: ${b.struggles.length ? b.struggles.join(', ') : 'Not sure yet'}`,
     b.notes ? `Notes: ${b.notes}` : null,
+    `Source: ${b.source || 'direct'}${b.campaign ? ' · ' + b.campaign : ''}`,
     notionUrl ? `\nIn Notion: ${notionUrl}` : null,
   ].filter((l) => l !== null);
 

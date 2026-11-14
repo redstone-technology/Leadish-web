@@ -48,3 +48,15 @@ the booking or email it to tayeb@leadish.app, so no lead is lost silently.
 - Green is the rep's voice, purple is the AI customer's response. The line behind the glass is the brand's conversation line, in one solid colour. Backgrounds are flat with a fine grain.
 - Headlines use Sora. The brand guide's headline face, Forma DJR Display, needs a web licence before it can be added.
 - Names, scores and calls shown in the interface are sample data.
+
+
+## Tracking who sent a lead
+
+Give every partner or video its own link. The tag rides along to `/book` and lands in the
+Notion columns **Source** and **Campaign** (and in the email alert).
+
+    https://leadish.app/?ref=trifid
+    https://leadish.app/book?ref=faress&utm_campaign=video-objections
+
+`ref` (or `utm_source`) = who. `utm_campaign` / `utm_content` = which video or post.
+The latest tag is kept for 60 days in the visitor's browser (`js/ref.js`).
