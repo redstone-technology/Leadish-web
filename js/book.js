@@ -37,9 +37,11 @@
     return parseDate(s).toLocaleDateString('en-GB', long ? { weekday: 'long', day: 'numeric', month: 'long' } : { weekday: 'short', day: 'numeric', month: 'short' });
   }
 
-  /* Working days in Qatar: Sunday to Thursday. Offer the next ten, starting two days out. */
+  /* Working days in Qatar: Sunday to Thursday. Offer the next ten, starting three days out.
+     The next two days are always blocked so we have time to prepare. These are preferences only:
+     we confirm the real day and time on the phone. */
   function workingDays() {
-    var out = [], d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + 2);
+    var out = [], d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + 3);
     while (out.length < 10) { if (d.getDay() !== 5 && d.getDay() !== 6) out.push(iso(d)); d.setDate(d.getDate() + 1); }
     return out;
   }
@@ -109,7 +111,7 @@
       kicker: function (d) { return d.struggles && d.struggles.length ? "Noted. We'll make it hard there." : "That's fine. The scores will show you."; },
       options: [['At their office', 'At your office', 'We come to you, in Doha'], ['Online', 'Online', 'Everyone joins from a link']] },
 
-    { id: 'date', type: 'date', q: 'Which day would work best for your team?', sub: "Sunday to Thursday. We'll confirm with you first.",
+    { id: 'date', type: 'date', q: 'Which day would work best for your team?', sub: "Sunday to Thursday. Pick what suits you best. We'll confirm the exact day and time when we call.",
       skip: function (d) { return !booking(d); },
       kicker: function (d) { return d.where === 'Online' ? "We'll send the link." : "We'll come to you."; } },
 
