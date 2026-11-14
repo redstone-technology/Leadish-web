@@ -60,11 +60,3 @@ Notion columns **Source** and **Campaign** (and in the email alert).
 
 `ref` (or `utm_source`) = who. `utm_campaign` / `utm_content` = which video or post.
 The latest tag is kept for 60 days in the visitor's browser (`js/ref.js`).
-
-## Weekly limit on free challenges
-
-3 online and 1 in-person challenge a week (Sunday to Thursday). `/api/slots` counts the week's
-bookings in Notion (Status not Cancelled, Lost or Waitlist) and the booking page greys out full
-weeks. If every week shown is full, the visitor can join the waitlist (Status "Waitlist").
-`/api/book` checks again before saving. Change the limits in Vercel with `LIMIT_ONLINE` and
-`LIMIT_OFFICE`. Shared logic: `api/_capacity.js`.

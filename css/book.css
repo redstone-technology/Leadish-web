@@ -112,10 +112,6 @@ body.book { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction
 .opt--date b { font-size: 26px; font-weight: 600; letter-spacing: -.04em; line-height: 1.15; }
 .opt--date span { font-size: 13px; color: var(--text-2); }
 .opt--date[aria-checked="true"] small { color: var(--you); }
-.opt--date.is-full { opacity: .42; cursor: not-allowed; transform: none; }
-.opt--date.is-full span { font-weight: 600; color: var(--text-3); }
-.bk-full { display: grid; gap: 14px; justify-items: start; margin-top: 16px; padding: 18px 20px; border-radius: 20px; font-size: 15px; line-height: 1.5; color: var(--text-2); }
-.bk-full b { color: var(--text); font-weight: 600; }
 
 /* ── Fields ── */
 .flds { display: grid; gap: 16px; }
