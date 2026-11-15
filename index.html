@@ -48,8 +48,7 @@
   <!-- ── Hero ── -->
   <section class="hero" id="top">
     <div class="wrap">
-      <p class="hero__eyebrow reveal">Leadish · the AI sales game for teams</p>
-      <h1 class="h1 hero__title reveal" style="--i:1">Sales practice your team actually wants to play.</h1>
+      <h1 class="h1 hero__title reveal" style="--i:1">Sales practice your team actually <span class="hl">wants to play.</span></h1>
       <p class="lede reveal" style="--i:2">Your reps call an AI customer, get a score, and race each other on a live leaderboard. You hear every call and see who's ready.</p>
       <div class="hero__actions reveal" style="--i:3">
         <a class="btn btn--primary" href="/book">Book your free challenge</a>
@@ -63,8 +62,8 @@
         <path class="line" pathLength="1" stroke-width="74" d="M-900 470 C -640 300, -420 600, -100 600 C 120 600, 250 230, 440 230 S 650 650, 820 650 S 1040 290, 1190 300 S 1380 600, 1470 560 S 1640 300, 1720 160 S 2040 -60, 2500 60"/>
       </svg>
 
-      <div class="wrap stage stage--story" aria-label="How Leadish works: the rep calls, the team races, the manager hears every call">
-        <figure class="step step--l reveal" style="--i:2">
+      <div class="wrap stage stage--story" data-story aria-label="How Leadish works: the rep calls, the team races, the manager hears every call">
+        <figure class="step step--l reveal" style="--i:2" data-step="1">
           <figcaption class="step__cap"><span class="step__n">1</span>Your rep calls the AI</figcaption>
           <div class="call call--hero glass" id="call" data-turn="ai">
             <div class="call__head">
@@ -85,14 +84,14 @@
           </div>
         </figure>
 
-        <figure class="step step--m reveal" style="--i:1">
+        <figure class="step step--m reveal" style="--i:1" data-step="2">
           <figcaption class="step__cap"><span class="step__n">2</span>The team races</figcaption>
           <div class="hboard glass glass--thick">
             <div class="hboard__head">
               <div><b>Live leaderboard</b><small><span class="live">Challenge in play</span></small></div>
               <p class="code">Join code<b class="num">4821</b></p>
             </div>
-            <ol data-board>
+            <ol data-hero-board>
               <li class="row" data-score="21" data-tries="3"><span class="row__pos num">1</span><span class="row__name">Noor</span><span class="row__tries"><i class="used"></i><i class="used"></i><i class="used"></i></span><span class="row__score num">21</span></li>
               <li class="row" data-score="18" data-tries="2"><span class="row__pos num">2</span><span class="row__name">Sara</span><span class="row__tries"><i class="used"></i><i class="used"></i><i></i></span><span class="row__score num">18</span></li>
               <li class="row" data-score="14" data-tries="2"><span class="row__pos num">3</span><span class="row__name">Omar</span><span class="row__tries"><i class="used"></i><i class="used"></i><i></i></span><span class="row__score num">14</span></li>
@@ -101,7 +100,7 @@
           </div>
         </figure>
 
-        <figure class="step step--r reveal" style="--i:3">
+        <figure class="step step--r reveal" style="--i:3" data-step="3">
           <figcaption class="step__cap"><span class="step__n">3</span>You hear every call</figcaption>
           <div class="mgr glass">
             <div class="mgr__rep">
@@ -110,8 +109,8 @@
               <span class="won">Won</span>
             </div>
             <dl class="meter">
-              <div><dt>Score</dt><dd class="num you">21</dd></div>
-              <div><dt>Rapport</dt><dd class="num">60<span>%</span></dd></div>
+              <div><dt>Score</dt><dd class="num you" data-count="21">21</dd></div>
+              <div><dt>Rapport</dt><dd class="num"><b data-count="60" style="font-weight:inherit">60</b><span>%</span></dd></div>
             </dl>
             <div class="mgr__player" aria-hidden="true">
               <span class="mgr__play"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M3.5 1.7v10.6a.6.6 0 0 0 .9.5l8.3-5.3a.6.6 0 0 0 0-1L4.4 1.2a.6.6 0 0 0-.9.5Z"/></svg></span>
@@ -343,14 +342,13 @@
 
   <section class="m-block glass glass--thick m-hero" id="m-top">
     <div class="m-hero__copy">
-      <p class="m-label">Leadish · the AI sales game for teams</p>
-      <h1>Sales practice your team actually wants to play.</h1>
+      <h1>Sales practice your team actually <span class="hl">wants to play.</span></h1>
       <p class="m-lede">Your reps call an AI customer, get a score, and race on a live leaderboard. You hear every call.</p>
     </div>
     <div class="m-art m-art--story" aria-label="How Leadish works">
       <svg class="ribbon m-art__line" viewBox="0 0 400 320" preserveAspectRatio="none" aria-hidden="true"><path class="line" pathLength="1" stroke-width="30" d="M-60 250 C 20 150, 90 300, 170 230 S 300 60, 460 130"/></svg>
-      <div class="m-story">
-        <div class="m-card m-card--call" id="mCall" data-turn="ai">
+      <div class="m-story" data-story>
+        <div class="m-card m-card--call" id="mCall" data-turn="ai" data-step="1">
           <span class="m-card__tag"><b>1</b>Your rep calls the AI</span>
           <div class="m-call__head">
             <span class="avatar"><img src="assets/customer-cap.webp" alt="" width="40" height="40"></span>
@@ -362,15 +360,15 @@
             <div><p class="m-call__state"><em id="mSpeaker">Khalid</em> is speaking</p><p class="m-call__line" id="mLine">“I'm busy. You have one minute.”</p></div>
           </div>
         </div>
-        <div class="m-card m-card--board">
+        <div class="m-card m-card--board" data-step="2">
           <span class="m-card__tag"><b>2</b>The team races</span>
-          <ol class="m-mini" data-board>
+          <ol class="m-mini" data-hero-board>
             <li class="row" data-score="21" data-tries="3"><span class="row__pos num">1</span><span class="row__name">Noor</span><span class="row__tries"><i class="used"></i><i class="used"></i><i class="used"></i></span><span class="row__score num">21</span></li>
             <li class="row" data-score="18" data-tries="2"><span class="row__pos num">2</span><span class="row__name">Sara</span><span class="row__tries"><i class="used"></i><i class="used"></i><i></i></span><span class="row__score num">18</span></li>
             <li class="row" data-score="14" data-tries="2"><span class="row__pos num">3</span><span class="row__name">Omar</span><span class="row__tries"><i class="used"></i><i class="used"></i><i></i></span><span class="row__score num">14</span></li>
           </ol>
         </div>
-        <div class="m-card m-card--mgr">
+        <div class="m-card m-card--mgr" data-step="3">
           <span class="m-card__tag"><b>3</b>You hear every call</span>
           <div class="m-heromgr">
             <span class="m-heromgr__play" aria-hidden="true"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M3.5 1.7v10.6a.6.6 0 0 0 .9.5l8.3-5.3a.6.6 0 0 0 0-1L4.4 1.2a.6.6 0 0 0-.9.5Z"/></svg></span>
@@ -521,6 +519,7 @@
 
 <script src="js/ref.js"></script>
 <script src="js/main.js" defer></script>
+<script src="js/hero.js" defer></script>
 <script src="js/mobile.js" defer></script>
 </body>
 </html>

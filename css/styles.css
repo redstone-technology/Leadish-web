@@ -735,3 +735,30 @@ section { position: relative; }
   .stage--story .step--m { order: 0 !important; grid-column: auto !important; }
   .stage--story .call { width: auto; margin: 0; }
 }
+
+/* ── Hero motion: underline, active step, flying points ── */
+.hl {
+  background-image: linear-gradient(var(--you-fill), var(--you-fill));
+  background-repeat: no-repeat; background-position: 0 92%; background-size: 100% .12em;
+  padding-bottom: .04em;
+}
+.js .hl { background-size: 0 .12em; transition: background-size 1s cubic-bezier(.6, 0, .2, 1); }
+.js .hl.in { background-size: 100% .12em; }
+
+[data-story] .step > :last-child { transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+[data-story] .step__n { transition: background-color .4s var(--ease), color .4s var(--ease), transform .4s var(--spring); }
+[data-story] .step.is-active > :last-child { transform: translateY(-6px); box-shadow: 0 0 0 2px color-mix(in srgb, var(--you-fill) 60%, transparent), var(--lift); }
+[data-story] .step--l.is-active > :last-child { box-shadow: 0 0 0 2px color-mix(in srgb, var(--ai-fill) 55%, transparent), var(--lift); }
+[data-story] .step.is-active .step__n { background: var(--you-fill); color: #fff; transform: scale(1.12); }
+[data-story] .step--l.is-active .step__n { background: var(--ai-fill); }
+.mgr__scrub i { transition: background-color .2s, opacity .2s; }
+.mgr__scrub i.on { background: var(--ai); opacity: 1; }
+.js [data-story] .mgr__scrub i:nth-child(-n+7):not(.on) { background: var(--text-3); opacity: .35; }
+.mgr__play.pulse, .m-heromgr__play.pulse { animation: playpulse 1.2s var(--ease); }
+@keyframes playpulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ai-fill) 50%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+.fly-chip {
+  position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none;
+  padding: 6px 12px; border-radius: 999px; font-size: 15px; font-weight: 700; letter-spacing: -.02em;
+  color: #fff; background: var(--you-fill); box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--you-fill) 70%, transparent);
+}
+@media (prefers-reduced-motion: reduce) { .js .hl { background-size: 100% .12em; } }

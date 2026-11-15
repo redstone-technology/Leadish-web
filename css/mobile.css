@@ -223,3 +223,10 @@
 .m-card--call[data-turn="you"] .m-orb { --c: var(--you-fill); }
 .m-card--call .m-call__state em { color: var(--ai); }
 .m-card--call[data-turn="you"] .m-call__state em { color: var(--you); }
+/* hero motion on the phone */
+[data-story] .m-card { transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+[data-story] .m-card__tag b { transition: background-color .4s var(--ease), color .4s var(--ease); }
+[data-story] .m-card.is-active { transform: scale(1.02); box-shadow: inset 0 1px 0 #fff, 0 0 0 2px #2BD08A, 0 22px 40px -18px rgba(30, 12, 90, .7); }
+[data-story] .m-card--call.is-active { box-shadow: inset 0 1px 0 #fff, 0 0 0 2px #B9A6FF, 0 22px 40px -18px rgba(30, 12, 90, .7); }
+[data-story] .m-card.is-active .m-card__tag b { background: var(--you-fill); color: #fff; }
+[data-story] .m-card--call.is-active .m-card__tag b { background: var(--ai-fill); color: #fff; }
