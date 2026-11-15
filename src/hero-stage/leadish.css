@@ -1,0 +1,492 @@
+/* Leadish, variant C. Everything is scoped under .ld. */
+.ld {
+  & .ss-stage {
+    /* The product's own look: black, one neon green, a gold crown */
+    --ld-green: #17dc80;
+    --ld-green-soft: rgba(23, 220, 128, 0.14);
+    --ld-gold: #f5c542;
+    --ld-purple: #7654d6;
+    --ss-accent: var(--ld-green);
+    --ss-accent-2: var(--ld-green);
+    --ss-font: 'Sora', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --ss-canvas: #0d0d10;
+    --ss-surface: #08080a;
+    --ss-chrome: #141418;
+    --ss-raised: #18181d;
+    --gutter: 40px;
+    --pitch: 68px;
+    --ld-arrive: cubic-bezier(0.25, 0.8, 0.25, 1);
+    --ld-travel: cubic-bezier(0.45, 0, 0.1, 1);
+    overflow: hidden;
+    border-radius: 28px;
+    background: var(--ld-purple);
+    font: 12px/1.4 var(--ss-font);
+    color: var(--ss-text-strong);
+  }
+
+  /* ---- The footer's ribbon: same wave, same weight, same draw, looped ---- */
+
+  .ld-ribbon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  /* On the phone it sits as the footer card's does: full width, on the bottom edge */
+  .ld-ribbon[data-l='c'] {
+    inset: auto 0 -6px;
+    height: auto;
+    opacity: 0.9;
+  }
+
+  .ld-ribbon path {
+    fill: none;
+    stroke: #20b878;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: ld-ribbon 8s infinite;
+  }
+
+  /* ---- The leaderboard window: inset top, off the right and the bottom ---- */
+
+  .ld-window {
+    position: absolute;
+    top: var(--gutter);
+    left: 196px;
+    width: 724px;
+    height: 520px;
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 0 0 1px rgb(255 255 255 / 0.06), 0 40px 70px -30px rgba(20, 6, 70, 0.75);
+  }
+
+  .ld-side {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    padding: 14px 10px;
+  }
+
+  .ld-brand {
+    /* The product's own name in its own app, as a plain wordmark */
+    display: flex;
+    align-items: center;
+    height: 22px;
+    margin: 0 0 10px 8px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .ld-nav {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: var(--ss-radius-sm);
+  }
+
+  .ld-nav[data-on] { background: var(--ss-ink-1); }
+
+  .ld-scenes {
+    display: grid;
+    height: 100%;
+    background: var(--ss-surface);
+  }
+
+  /* Two rounds stacked; the change is a crossfade under the chrome, incoming first */
+  .ld-scene {
+    grid-area: 1 / 1;
+    min-height: 0;
+    /* The window runs 40px past the stage: content stops a gutter short of what shows */
+    padding: 20px calc(24px + 40px) 0 24px;
+    opacity: 0;
+    transition: opacity 0.45s ease 0.1s;
+  }
+
+  .ld-scene[data-on] {
+    opacity: 1;
+    transition: opacity 0.45s ease;
+  }
+
+  .ld-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .ld-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .ld-round {
+    will-change: transform;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--ss-ink-2);
+    color: var(--ss-text);
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  /* ---- Rows: placed by rank, so a swap is a slide, never a jump ---- */
+
+  .ld-list {
+    position: relative;
+    height: calc(var(--pitch) * 4);
+  }
+
+  .ld-row {
+    position: absolute;
+    inset: 0 0 auto;
+    display: grid;
+    grid-template-columns: 16px 40px minmax(0, 1fr) auto 44px;
+    align-items: center;
+    gap: 12px;
+    height: calc(var(--pitch) - 8px);
+    padding: 0 14px 0 12px;
+    border-radius: 12px;
+    background: var(--ss-raised);
+    transform: translateY(calc(var(--rank) * var(--pitch)));
+    transition: transform 0.75s var(--ld-travel), background-color 0.4s ease;
+    will-change: transform;
+  }
+
+  .ld-row[data-lead] {
+    background: color-mix(in srgb, var(--ld-green) 11%, var(--ss-raised));
+  }
+
+  /* Rank numbers sit on the slots, above the rows that slide under them */
+  .ld-pos {
+    position: absolute;
+    z-index: 1;
+    left: 12px;
+    top: 0;
+    display: grid;
+    place-items: center;
+    width: 16px;
+    height: calc(var(--pitch) - 8px);
+    color: var(--ss-text-faint);
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    transform: translateY(calc(var(--rank) * var(--pitch)));
+    pointer-events: none;
+  }
+
+  .ld-pos[data-lead] { color: var(--ld-green); }
+
+  /* A blob on a dark disc; the four faces share one cell and crossfade */
+  .ld-av {
+    position: relative;
+    display: grid;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #232329;
+  }
+
+  .ld-face {
+    grid-area: 1 / 1;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .ld-face[data-on] { opacity: 1; }
+  /* The blob is drawn a touch past its disc (its own art has air round it); scaled, so it takes no layout room */
+  .ld-face svg { width: 100%; height: 100%; transform: scale(1.1); }
+
+  .ld-name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .ld-tag {
+    justify-self: end;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--ss-ink-2);
+    color: var(--ss-text);
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: nowrap;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .ld-tag[data-t='closed'] { background: var(--ld-green-soft); color: var(--ld-green); }
+  .ld-tag[data-t='hung'] { background: rgba(255, 92, 92, 0.13); color: #ff8a8a; }
+
+  .ld-score {
+    justify-self: end;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ld-row[data-lead] .ld-score { color: var(--ld-green); }
+
+  /* One crown, over the #1 slot. It lifts off before the swap and lands after */
+  .ld-crown {
+    position: absolute;
+    z-index: 2;
+    top: -9px;
+    left: calc(12px + 16px + 12px + 20px);
+    display: grid;
+    color: var(--ld-gold);
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+    transform: translate(-50%, -50%) rotate(-14deg);
+    transition: transform 0.45s cubic-bezier(0.3, 1.5, 0.5, 1), opacity 0.3s ease;
+  }
+
+  .ld-crown:not([data-on]) {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(-16px) rotate(-30deg) scale(0.6);
+    transition: transform 0.28s ease-in, opacity 0.22s ease-in;
+  }
+
+  /* ---- The call card: straddles the window's sidebar, never a row ---- */
+
+  .ld-call {
+    position: absolute;
+    top: 128px;
+    left: var(--gutter);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    width: 292px;
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--ss-raised);
+    box-shadow: var(--ss-shadow-satellite), 0 30px 50px -24px rgba(20, 6, 70, 0.8);
+    opacity: 0;
+    transform: translateX(-8px);
+    will-change: transform;
+    transition: opacity 0.22s ease, transform 0.4s var(--ld-travel);
+  }
+
+  .ld-call[data-in] {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.6s ease 0.28s, transform 0.9s var(--ld-arrive) 0.28s;
+  }
+
+  .ld-call__who {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ld-photo {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #2a2a30;
+  }
+
+  .ld-call__lines {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .ld-call__name {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .ld-call__role {
+    color: var(--ss-text);
+    font-size: 11.5px;
+    line-height: 1.3;
+  }
+
+  .ld-quote {
+    display: grid;
+    padding: 10px 12px;
+    border-radius: 4px 12px 12px 12px;
+    background: #222228;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .ld-call__foot {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--ss-line);
+  }
+
+  .ld-av--s { width: 28px; height: 28px; }
+
+  .ld-call__rep {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .ld-status {
+    margin-left: auto;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--ss-ink-2);
+    color: var(--ss-text-strong);
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.3;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  .ld-status[data-state='closed'] { background: var(--ld-green); color: #04130b; }
+  .ld-status[data-state='hung'] { background: rgba(255, 92, 92, 0.16); color: #ff8a8a; }
+
+  /* Time's up: the clock pill turns gold with the winner's row */
+  .ld-round { transition: background-color 0.3s ease, color 0.3s ease; }
+  .ld-round[data-up] { background: rgba(245, 197, 66, 0.16); color: var(--ld-gold); }
+  .ld-row[data-win] { background: color-mix(in srgb, var(--ld-gold) 14%, var(--ss-raised)); }
+  .ld-row[data-win] .ld-score { color: var(--ld-gold); }
+
+  /* A fresh challenge: the rows clear, reset while clear, and come back */
+  .ld-list { transition: opacity 0.35s ease; }
+  .ld-list[data-clear] { opacity: 0; }
+
+  .ld-status__in {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    width: 88px;
+    height: 16px;
+    white-space: nowrap;
+  }
+
+  .ld-live {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ld-green);
+    animation: ld-live 1.4s ease-in-out infinite;
+  }
+
+  /* The points: a chip that buds over the status and then flies */
+  .ld-chip {
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--ld-green);
+    color: #04130b;
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .ld-chip--held {
+    position: absolute;
+    right: 8px;
+    top: -6px;
+    opacity: 0;
+    transform: translateY(6px) scale(0.8);
+    transition: opacity 0.2s ease, transform 0.35s var(--ld-arrive);
+    will-change: transform;
+  }
+
+  .ld-chip--held[data-on] { opacity: 1; transform: none; }
+
+  .ld-chip--fly {
+    display: inline-block;
+    box-shadow: 0 8px 18px -6px rgba(23, 220, 128, 0.6);
+  }
+
+  /* It sinks into the score over the end of its flight, so the score rolls as it goes */
+  .ss-fly[data-go] { animation: ld-sink-out 0.9s linear forwards; }
+  .ss-fly[data-go] .ld-chip--fly { animation: ld-sink 0.9s linear forwards; }
+
+  /* ---- Compact (phone column): the board on top, the call card over the
+     empty space under the rows, so the points fly up into the list ---- */
+
+  & .ss-stage[data-layout='compact'] {
+    --gutter: 16px;
+    --pitch: 56px;
+    border-radius: 24px;
+  }
+
+  [data-layout='compact'] .ld-window {
+    top: 16px;
+    left: 16px;
+    width: 382px;
+    height: 342px;
+  }
+
+  [data-layout='compact'] .ld-scene { padding: 16px calc(16px + 40px) 0 16px; }
+  [data-layout='compact'] .ld-head { margin-bottom: 18px; }
+  [data-layout='compact'] .ld-title { font-size: 15px; }
+  [data-layout='compact'] .ld-row { grid-template-columns: 12px 34px minmax(0, 1fr) auto 30px; gap: 9px; padding: 0 10px; }
+  [data-layout='compact'] .ld-av { width: 34px; height: 34px; }
+  [data-layout='compact'] .ld-av--s { width: 26px; height: 26px; }
+  [data-layout='compact'] .ld-name { font-size: 13px; }
+  [data-layout='compact'] .ld-tag { padding: 3px 8px; font-size: 11px; }
+  [data-layout='compact'] .ld-score { font-size: 18px; }
+  [data-layout='compact'] .ld-pos { left: 10px; width: 12px; }
+  [data-layout='compact'] .ld-crown { left: calc(10px + 12px + 9px + 17px); top: -8px; }
+
+  [data-layout='compact'] .ld-call {
+    top: auto;
+    bottom: var(--gutter);
+    left: var(--gutter);
+    width: 270px;
+    gap: 12px;
+    padding: 14px;
+  }
+}
+
+@keyframes ld-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@keyframes ld-sink {
+  0%, 70% { transform: none; }
+  100% { transform: scale(0.7); }
+}
+
+@keyframes ld-sink-out {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+
+
+
+/* The footer's draw: 2.6s on cubic-bezier(.5, 0, .1, 1). Draw in, hold, draw out
+   to the right on the same curve, a breath, again */
+@keyframes ld-ribbon {
+  0% { stroke-dashoffset: 1; animation-timing-function: cubic-bezier(0.5, 0, 0.1, 1); }
+  32.5% { stroke-dashoffset: 0; animation-timing-function: linear; }
+  62% { stroke-dashoffset: 0; animation-timing-function: cubic-bezier(0.5, 0, 0.1, 1); }
+  94.5% { stroke-dashoffset: -1; animation-timing-function: linear; }
+  100% { stroke-dashoffset: -1; }
+}
+
+/* Reduced motion: the ribbon is simply there, drawn */
+@media (prefers-reduced-motion: reduce) {
+  .ld .ld-ribbon path { animation: none; stroke-dashoffset: 0; }
+}

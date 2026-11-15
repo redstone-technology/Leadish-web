@@ -16,6 +16,9 @@
 <link rel="preload" href="assets/fonts/sora-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/mobile.css" media="(max-width: 640px)">
+<link rel="stylesheet" href="css/hero.css">
+<link rel="stylesheet" href="css/ld-stage.css">
+<style>.ld-wrap{margin-top:clamp(34px,5vh,52px);padding-bottom:32px}.ld-host{width:100%}.ld-host--m{margin-top:24px}</style>
 <script>
   /* One colour: Soft Grey. */
   document.documentElement.classList.add('js');
@@ -46,58 +49,17 @@
 <main id="main">
 
   <!-- ── Hero ── -->
-  <section class="hero hero--story" id="top">
+  <section class="hero hero--b" id="top">
     <div class="wrap">
-      <h1 class="h1 hero__title reveal"><span class="ln">Sales practice</span> <span class="ln">your team <span class="hl">wants to play.</span></span></h1>
-      <p class="lede reveal" style="--i:1">Your reps call an AI customer, get a score, and race on a live leaderboard. You hear every call.</p>
+      <h1 class="h1 hero__title reveal"><span class="ln">Stop training your sales team.</span> <span class="ln"><span class="hl">Let them play.</span></span></h1>
+      <p class="lede reveal" style="--i:1">It's Kahoot for sales calls. Your reps sell to an AI customer, live, and the best closer wins.</p>
       <div class="hero__actions reveal" style="--i:2">
         <a class="btn btn--primary btn--l" href="/book">Book your free challenge</a>
       </div>
       <p class="hero__note reveal" style="--i:3">Free · 30 minutes · Arabic or English</p>
     </div>
-
-    <div class="wrap story reveal" style="--i:3">
-      <div class="story__panel">
-        <svg class="ribbon story__line" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true"><path class="line" pathLength="1" stroke-width="46" d="M-80 330 C 120 160, 300 400, 520 300 S 860 60, 1280 170"/></svg>
-        <div class="story__grid" data-story aria-label="How Leadish works: your rep calls the AI, the team races, you hear every call">
-          <div class="scard scard--call" id="call" data-turn="ai" data-step="1">
-            <span class="scard__tag"><b>1</b>Your rep calls the AI</span>
-            <div class="scard__head">
-              <span class="avatar"><img src="assets/customer-cap.webp" alt="" width="40" height="40"></span>
-              <div class="scard__who"><b>Khalid <span class="ai-tag">AI customer</span></b><small><span class="dot"></span>Restaurant · Hostile</small></div>
-              <p class="call__clock"><span class="live">Live</span><b class="num" id="clock">00:41</b></p>
-            </div>
-            <div class="scard__talk">
-              <div class="orb orb--s" aria-hidden="true"><div class="orb__ball"></div></div>
-              <div><p class="call__state"><em id="speaker">Khalid</em> is speaking</p><p class="call__line" id="line">“I'm busy. You have one minute.”</p></div>
-            </div>
-          </div>
-
-          <div class="scard scard--board" data-step="2">
-            <span class="scard__tag"><b>2</b>The team races</span>
-            <ol class="scard__rows" data-hero-board>
-              <li class="row" data-score="21" data-tries="3"><span class="row__pos num">1</span><span class="row__name">Noor</span><span class="row__tries"><i class="used"></i><i class="used"></i><i class="used"></i></span><span class="row__score num">21</span></li>
-              <li class="row" data-score="18" data-tries="2"><span class="row__pos num">2</span><span class="row__name">Sara</span><span class="row__tries"><i class="used"></i><i class="used"></i><i></i></span><span class="row__score num">18</span></li>
-              <li class="row" data-score="14" data-tries="2"><span class="row__pos num">3</span><span class="row__name">Omar</span><span class="row__tries"><i class="used"></i><i class="used"></i><i></i></span><span class="row__score num">14</span></li>
-            </ol>
-          </div>
-
-          <div class="scard scard--mgr" data-step="3">
-            <span class="scard__tag"><b>3</b>You hear every call</span>
-            <div class="mgr__rep">
-              <span class="avatar avatar--s"><img src="assets/customer-cap.webp" alt="" width="34" height="34"></span>
-              <div><b>Noor</b><small>Score <span data-count="21">21</span> · vs Khalid</small></div>
-              <span class="won">Won</span>
-            </div>
-            <p class="mgr__say"><small>Noor</small>What does an empty table cost you on a Tuesday?</p>
-            <div class="mgr__player" aria-hidden="true">
-              <span class="mgr__play"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M3.5 1.7v10.6a.6.6 0 0 0 .9.5l8.3-5.3a.6.6 0 0 0 0-1L4.4 1.2a.6.6 0 0 0-.9.5Z"/></svg></span>
-              <span class="mgr__scrub"><i style="--h:40%"></i><i style="--h:70%"></i><i style="--h:55%"></i><i style="--h:90%"></i><i style="--h:60%"></i><i style="--h:35%"></i><i style="--h:75%"></i><i style="--h:50%"></i><i style="--h:85%"></i><i style="--h:45%"></i><i style="--h:65%"></i><i style="--h:30%"></i><i style="--h:70%"></i><i style="--h:55%"></i><i style="--h:40%"></i><i style="--h:80%"></i></span>
-              <span class="mgr__time num">03:52</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="wrap ld-wrap reveal" style="--i:3">
+      <div class="ld-host" data-ld-stage role="img" aria-label="A Leadish challenge: a rep closes the AI customer on a call, the points fly to the live leaderboard and the crown moves to the new leader"></div>
     </div>
   </section>
 
@@ -319,42 +281,10 @@
 
   <section class="m-block glass glass--thick m-hero" id="m-top">
     <div class="m-hero__copy">
-      <h1><span class="ln">Sales practice</span> <span class="ln">your team</span> <span class="ln"><span class="hl">wants to play.</span></span></h1>
-      <p class="m-lede">Your reps call an AI customer, get a score, and race on a live leaderboard. You hear every call.</p>
+      <h1><span class="ln">Stop training</span> <span class="ln">your sales team.</span> <span class="ln"><span class="hl">Let them play.</span></span></h1>
+      <p class="m-lede">It's Kahoot for sales calls. Your reps sell to an AI customer, live, and the best closer wins.</p>
     </div>
-    <div class="m-art m-art--story" aria-label="How Leadish works">
-      <svg class="ribbon m-art__line" viewBox="0 0 400 320" preserveAspectRatio="none" aria-hidden="true"><path class="line" pathLength="1" stroke-width="30" d="M-60 250 C 20 150, 90 300, 170 230 S 300 60, 460 130"/></svg>
-      <div class="m-story" data-story>
-        <div class="m-card m-card--call" id="mCall" data-turn="ai" data-step="1">
-          <span class="m-card__tag"><b>1</b>Your rep calls the AI</span>
-          <div class="m-call__head">
-            <span class="avatar"><img src="assets/customer-cap.webp" alt="" width="40" height="40"></span>
-            <div class="m-call__who"><b>Khalid <span class="ai-tag">AI customer</span></b><small><span class="dot"></span>Restaurant · Hostile</small></div>
-            <p class="m-call__clock"><span class="live">Live</span><b class="num" id="mClock">00:41</b></p>
-          </div>
-          <div class="m-card__talk">
-            <div class="m-orb m-orb--s" aria-hidden="true"><div class="orb__ball"></div></div>
-            <div><p class="m-call__state"><em id="mSpeaker">Khalid</em> is speaking</p><p class="m-call__line" id="mLine">“I'm busy. You have one minute.”</p></div>
-          </div>
-        </div>
-        <div class="m-card m-card--board" data-step="2">
-          <span class="m-card__tag"><b>2</b>The team races</span>
-          <ol class="m-mini" data-hero-board>
-            <li class="row" data-score="21" data-tries="3"><span class="row__pos num">1</span><span class="row__name">Noor</span><span class="row__tries"><i class="used"></i><i class="used"></i><i class="used"></i></span><span class="row__score num">21</span></li>
-            <li class="row" data-score="18" data-tries="2"><span class="row__pos num">2</span><span class="row__name">Sara</span><span class="row__tries"><i class="used"></i><i class="used"></i><i></i></span><span class="row__score num">18</span></li>
-            <li class="row" data-score="14" data-tries="2"><span class="row__pos num">3</span><span class="row__name">Omar</span><span class="row__tries"><i class="used"></i><i class="used"></i><i></i></span><span class="row__score num">14</span></li>
-          </ol>
-        </div>
-        <div class="m-card m-card--mgr" data-step="3">
-          <span class="m-card__tag"><b>3</b>You hear every call</span>
-          <div class="m-heromgr">
-            <span class="m-heromgr__play" aria-hidden="true"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M3.5 1.7v10.6a.6.6 0 0 0 .9.5l8.3-5.3a.6.6 0 0 0 0-1L4.4 1.2a.6.6 0 0 0-.9.5Z"/></svg></span>
-            <div><b>Noor · score 21</b><small>Recording and transcript</small></div>
-            <span class="won">Won</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="ld-host ld-host--m" data-ld-stage role="img" aria-label="A Leadish challenge: a rep closes the AI customer on a call, the points fly to the live leaderboard and the crown moves to the new leader"></div>
     <div class="m-hero__end">
       <a class="btn btn--primary m-cta" href="/book">Book your free challenge</a>
       <p class="m-note">Free · 30 minutes · Arabic or English</p>
@@ -497,6 +427,7 @@
 <script src="js/ref.js"></script>
 <script src="js/main.js" defer></script>
 <script src="js/hero.js" defer></script>
+<script src="js/ld-stage.js" defer></script>
 <script src="js/mobile.js" defer></script>
 </body>
 </html>

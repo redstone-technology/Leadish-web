@@ -1,0 +1,24 @@
+{
+  "name": "leadish-hero-stage",
+  "private": true,
+  "type": "module",
+  "description": "The homepage hero scene (variant C), built with Benji Taylor's Stageshow kit. Builds to /js/ld-stage.js and /css/ld-stage.css.",
+  "scripts": {
+    "build": "vite build",
+    "faces": "node tools/blob-faces.mjs blobs.ts"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "2.1.7",
+    "lucide-react": "0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.7.0",
+    "blobatar": "2.7.0",
+    "typescript": "^5.6.3",
+    "vite": "^6.4.5"
+  }
+}

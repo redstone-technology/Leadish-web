@@ -60,3 +60,9 @@ Notion columns **Source** and **Campaign** (and in the email alert).
 
 `ref` (or `utm_source`) = who. `utm_campaign` / `utm_content` = which video or post.
 The latest tag is kept for 60 days in the visitor's browser (`js/ref.js`).
+
+## Homepage hero
+
+The hero is variant C: the headline "Stop training your sales team. Let them play." over an animated
+Stageshow scene (`js/ld-stage.js`, `css/ld-stage.css`; source in `src/hero-stage/`).
+All three designs are saved as working pages in `variants/` (A, B, C) — see `variants/README.md`.
