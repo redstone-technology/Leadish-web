@@ -186,3 +186,40 @@
   .m-ring li span { font-size: 12px; }
   .m-big { font-size: 72px; }
 }
+
+/* ── Hero v2: headline first, then a picture of how it works (call → team → manager), then the button ── */
+.m-hero { padding: 30px 8px 26px; }
+.m-hero__copy { padding: 0 12px; }
+.m-hero__copy .m-label { margin-bottom: 14px; }
+.m-hero h1 { font-size: clamp(32px, 9.6vw, 40px); line-height: 1.02; text-wrap: balance; }
+.m-art--story { margin-top: 24px; padding: 18px 14px 16px; }
+.m-story { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 10px; }
+.m-card {
+  padding: 12px 12px 12px; border-radius: 20px; text-align: left;
+  background: rgba(255, 255, 255, .93) var(--grain-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(255, 255, 255, .5), 0 18px 34px -20px rgba(30, 12, 90, .6);
+}
+.m-card__tag { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 10px; font-size: 12px; font-weight: 600; letter-spacing: -.01em; color: var(--text); }
+.m-card__tag b { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; color: var(--you); background: var(--you-soft); }
+.m-card--call .m-card__tag b { color: var(--ai); background: var(--ai-soft); }
+.m-card--call .avatar { width: 36px; height: 36px; }
+.m-card__talk { display: grid; grid-template-columns: 52px 1fr; align-items: center; gap: 12px; margin-top: 10px; padding: 10px; border-radius: 14px; background: var(--glass-inset); }
+.m-orb--s { width: 52px; height: 52px; margin: 0; }
+.m-card__talk .m-call__state { margin: 0; font-size: 13.5px; text-align: left; }
+.m-card__talk .m-call__line { min-height: 0; margin: 2px 0 0; max-width: none; font-size: 12.5px; text-align: left; line-height: 1.35; }
+.m-mini { position: relative; display: flex; flex-direction: column; gap: 5px; }
+.m-mini .row { height: 40px; padding: 0 12px 0 10px; gap: 10px; border-radius: 12px; font-size: 14px; grid-template-columns: 18px 1fr auto auto; }
+.m-mini .row:first-child { background: var(--you-soft); box-shadow: none; }
+.m-mini .row__score { font-size: 15.5px; min-width: 30px; }
+.m-heromgr { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; }
+.m-heromgr__play { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--btn); color: var(--btn-text); }
+.m-heromgr__play svg { width: 12px; height: 12px; margin-left: 2px; }
+.m-heromgr b { display: block; font-size: 14px; font-weight: 600; letter-spacing: -.02em; }
+.m-heromgr small { display: block; font-size: 12px; color: var(--text-3); }
+.m-heromgr .won { font-size: 12.5px; }
+.m-hero__end { padding: 22px 12px 0; }
+.m-hero__end .m-cta { margin-top: 0; }
+.m-card--call[data-turn="you"] .m-orb { --c: var(--you-fill); }
+.m-card--call .m-call__state em { color: var(--ai); }
+.m-card--call[data-turn="you"] .m-call__state em { color: var(--you); }

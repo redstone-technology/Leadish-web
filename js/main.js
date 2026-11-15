@@ -30,7 +30,7 @@
       { who: 'ai',  name: 'Khalid', text: 'Fine. Thursday, after lunch.', score: 21, rapport: 60, ring: 0 }
     ];
     var talk = $('#talk'), line = $('#line'), speaker = $('#speaker');
-    var scoreEls = [$('#score2')], rapport = $('#rapport'), ring = $('#ring');
+    var scoreEls = [$('#score2')].filter(Boolean), rapport = $('#rapport'), ring = $('#ring');
     var outcome = $('#outcome'), clock = $('#clock');
     var step = 1, seconds = 41, timer = null;
 
@@ -59,15 +59,16 @@
       call.setAttribute('data-turn', s.who);
       speaker.textContent = s.name;
       line.textContent = '“' + s.text + '”';
-      if (i === 0) talk.textContent = '';
-      talk.appendChild(bubble(s));
-      while (talk.children.length > 3) talk.removeChild(talk.firstChild);
+      if (talk) {
+        if (i === 0) talk.textContent = '';
+        talk.appendChild(bubble(s));
+        while (talk.children.length > 3) talk.removeChild(talk.firstChild);
+      }
       scoreEls.forEach(function (el) { count(el, s.score); });
-      count(rapport, s.rapport);
-      ring.style.strokeDashoffset = s.ring;
+      if (rapport) count(rapport, s.rapport);
+      if (ring) ring.style.strokeDashoffset = s.ring;
       var won = i === SCRIPT.length - 1;
-      outcome.textContent = won ? 'Won' : 'In play';
-      outcome.classList.toggle('is-won', won);
+      if (outcome) { outcome.textContent = won ? 'Won' : 'In play'; outcome.classList.toggle('is-won', won); }
       if (i === 0) seconds = 4;
     }
     function advance() {
