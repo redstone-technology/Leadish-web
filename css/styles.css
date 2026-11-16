@@ -270,7 +270,7 @@ img, svg { display: block; max-width: 100%; }
   transition: color .2s var(--ease), background-color .2s var(--ease);
 }
 .nav__links a:hover { color: var(--text); background: var(--glass-inset); }
-.nav__end { justify-self: end; display: flex; align-items: center; gap: 14px; }
+.nav__end { justify-self: end; display: flex; align-items: center; gap: 10px; }
 
 /* Colour picker — four finishes, like choosing a product colour */
 .finish { display: flex; align-items: center; gap: 10px; padding: 0 4px; }
@@ -626,6 +626,8 @@ section { position: relative; }
   .hero__actions .btn { width: min(100%, 320px); }
   .scene .ribbon { top: -70px; width: 1100px; }
   .nav .btn--s { height: 44px; }
+  .nav__end { gap: 6px; }
+  .nav .nav__signin { padding: 0 14px; }
   .stage { grid-template-columns: 1fr; }
   .problem__copy { grid-column: 1 / -1; }
   .fact { grid-template-columns: 1fr; gap: 14px; }
@@ -726,3 +728,17 @@ section { position: relative; }
 }
 @media (prefers-reduced-motion: reduce) { .js .hl { background-size: 100% .11em; } }
 .scard--call[data-turn="you"] .call__state em { color: var(--you); }
+
+/* Small phones: Sign in turns into a plain link so the logo keeps its size */
+@media (max-width: 420px) {
+  .nav { padding-left: 16px; }
+  .nav .nav__signin { padding: 0 8px; background: none; box-shadow: none; }
+  .nav .btn--primary.btn--s { padding: 0 14px; font-size: 13.5px; }
+  .nav__logo { min-width: 84px; }
+}
+@media (max-width: 350px) {
+  .nav { padding-left: 12px; }
+  .nav__logo { min-width: 66px; }
+  .nav .nav__signin { padding: 0 4px; font-size: 12.5px; }
+  .nav .btn--primary.btn--s { padding: 0 10px; font-size: 12px; }
+}
