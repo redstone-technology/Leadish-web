@@ -1,0 +1,22 @@
+# Leadish
+
+> Leadish is an AI sales training game for sales teams. Reps sell out loud to an AI customer that pushes back, get a score after every call, and race on a live leaderboard. Managers get every score, transcript and recording. The AI customer speaks Arabic (Gulf, Egyptian, Sudanese and other dialects) and English. Leadish is built in Doha, Qatar, for sales teams in Qatar, Saudi Arabia and across the GCC.
+
+Key facts:
+- Category: AI sales training, AI sales roleplay (also called AI sales simulation), sales practice software for teams.
+- How it works: we set up an AI customer around what the company sells; reps join a challenge on play.leadish.app with a code, link or QR code; each rep gets three tries; scores land on a live leaderboard.
+- What managers get: a score, rapport, transcript, recording and analysis for every practice call.
+- Languages: Arabic (Gulf, Egyptian, Sudanese and more) and English.
+- Who it's for: sales managers, heads of sales, business owners and HR / L&D teams with sales teams of about six reps or more (real estate, cars, insurance, telecom, retail, software, agencies).
+- How to try it: a free 30-minute team challenge, online or at the company's office. Book at https://leadish.app/book
+- Contact: tayeb@leadish.app
+
+## Pages
+
+- [Home](https://leadish.app/): what Leadish is and how a round works
+- [AI sales training](https://leadish.app/ai-sales-training): what AI sales training is, how it works, and how it compares with workshops and peer roleplay
+- [AI sales roleplay](https://leadish.app/ai-sales-roleplay): what reps practise (objections, cold calls, pitching, negotiating, closing), example scenarios, using roleplay to assess a team
+- [Sales training for teams](https://leadish.app/sales-training-for-teams): how a 30-minute team challenge works and what managers get
+- [Arabic AI sales training](https://leadish.app/arabic-sales-training): sales practice in Gulf, Egyptian and Sudanese Arabic for GCC teams
+- [التدريب على المبيعات بالعربية](https://leadish.app/ar/sales-training): the Arabic page, in Arabic
+- [Book a free team challenge](https://leadish.app/book)

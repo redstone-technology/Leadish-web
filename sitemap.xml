@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url><loc>https://leadish.app/</loc><lastmod>2026-11-18</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://leadish.app/ai-sales-training</loc><lastmod>2026-11-18</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://leadish.app/ai-sales-roleplay</loc><lastmod>2026-11-18</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://leadish.app/sales-training-for-teams</loc><lastmod>2026-11-18</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url>
-    <loc>https://leadish.app/</loc>
-    <lastmod>2026-11-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <loc>https://leadish.app/arabic-sales-training</loc><lastmod>2026-11-18</lastmod><changefreq>monthly</changefreq><priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://leadish.app/arabic-sales-training"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://leadish.app/ar/sales-training"/>
   </url>
   <url>
-    <loc>https://leadish.app/book</loc>
-    <lastmod>2026-11-17</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://leadish.app/ar/sales-training</loc><lastmod>2026-11-18</lastmod><changefreq>monthly</changefreq><priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://leadish.app/arabic-sales-training"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://leadish.app/ar/sales-training"/>
   </url>
+  <url><loc>https://leadish.app/book</loc><lastmod>2026-11-17</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
