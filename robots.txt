@@ -1,0 +1,33 @@
+# Leadish: open to search engines and AI search.
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /variants/
+
+# AI search crawlers (named so the intent is clear)
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /api/
+Disallow: /variants/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /api/
+Disallow: /variants/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+Disallow: /variants/
+
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /variants/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /variants/
+
+Sitemap: https://leadish.app/sitemap.xml
